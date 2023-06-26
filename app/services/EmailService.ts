@@ -1,9 +1,10 @@
-import path from "path";
-import nodemailer from "nodemailer";
-import ejs from "ejs";
-import { log } from "@/libraries/Log";
 import { config } from "@/config";
+import { EmailData } from "@/db/interfaces/Email/Email.interfaces";
 import i18n from "@/libraries/i18n";
+import { log } from "@/libraries/Log";
+import ejs from "ejs";
+import nodemailer from "nodemailer";
+import path from "path";
 
 class EmailService {
   mailer: nodemailer.Transporter;
@@ -18,7 +19,12 @@ class EmailService {
     });
   }
 
-  private send(email: string, subject: string, html: string): Promise<any> {
+  private send(
+    email: string,
+    subject: string,
+    html: string,
+    attachments: any,
+  ): Promise<any> {
     return new Promise((resolve, reject) => {
       this.mailer.sendMail(
         {
@@ -26,6 +32,7 @@ class EmailService {
           to: email,
           subject: subject,
           html: html,
+          attachments: attachments,
         },
         (err, info: any) => {
           if (err) return reject(err);
@@ -38,7 +45,7 @@ class EmailService {
   private compileTemplate(context: any): Promise<string> {
     return new Promise((resolve, reject) => {
       ejs.renderFile(
-        path.join(__dirname, "../views/email/template.ejs"),
+        path.join(__dirname, `../views/email/${context.page}.ejs`),
         context,
         (err, str) => {
           if (err) return reject(err);
@@ -48,30 +55,28 @@ class EmailService {
     });
   }
 
-  sendEmail(
-    email: string,
-    subject: string,
-    page: string,
-    locale: string,
-    context?: any,
-  ): Promise<any> {
-    if (context == null) context = {};
-    context.page = page;
+  async sendEmail(emailData: EmailData): Promise<any> {
+    if (emailData.context == null) emailData.context = {};
+    emailData.context.page = emailData.page;
 
     const t: any = {};
     i18n.init(t);
-    if (locale == null) locale = "en";
-    t.setLocale(locale);
+    if (emailData.locale == null) emailData.locale = "en";
+    t.setLocale(emailData.locale);
 
-    context.__ = t.__;
+    emailData.context.__ = t.__;
 
     // Translate subject
-    subject = t.__(subject);
+    emailData.subject = t.__(emailData.subject);
 
-    return this.compileTemplate(context).then((html: string) => {
-      log.debug(`Sending ${page} email to: ${email}`);
-      return this.send(email, subject, html);
-    });
+    const html = await this.compileTemplate(emailData.context);
+    log.debug(`Sending ${emailData.page} email to: ${emailData.email}`);
+    return await this.send(
+      emailData.email,
+      emailData.subject,
+      html,
+      emailData.attachments,
+    );
   }
 }
 

@@ -1,6 +1,7 @@
 import core from "express-serve-static-core";
-import { JWTPayload } from "./controllers/v1/Auth";
-import { User } from "./models/User";
+import { Role } from "./db/models/Role/model/Role";
+import { User } from "./db/models/User/model/User";
+import { JWTPayload } from "./services/AuthService";
 
 declare module "express" {
   interface Request<
@@ -12,7 +13,8 @@ declare module "express" {
     session?: {
       jwtstring?: string;
       jwt?: JWTPayload;
-      user?: Pick<User, "id" | "email" | "role">;
+      user?: Pick<User, "id" | "email" | "uid_azure">;
+      roles?: Role[];
       where?: any;
       include?: any;
       attributes?: any;

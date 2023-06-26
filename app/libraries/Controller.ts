@@ -1,15 +1,34 @@
 import { Request, Response, Router } from "express";
-import { log } from "./Log";
 import _ from "lodash";
+import { log } from "./Log";
 
 export enum ControllerErrors {
-  NOT_FOUND,
-  BAD_REQUEST,
-  UNKNOWN_ERROR,
+  NOT_FOUND = 404,
+  BAD_REQUEST = 400,
+  UNAUTHORIZED = 401,
+  FORBIDDEN = 403,
+  UNKNOWN_ERROR = 500,
+  CONFLICT = 409,
+}
+
+interface QueryInterface {
+  [key: string]: any;
 }
 
 export function parseId(req: Request): number {
   return parseInt(req.params.id);
+}
+
+export function parseQuery(req: Request): QueryInterface {
+  return req.query;
+}
+
+export function parseEmployeeIdFromToken(req: Request): string {
+  return req.session.jwt.uid_azure;
+}
+
+export function getRoleFromToken(req: Request): string[] {
+  return req.session.jwt.roles;
 }
 
 export function parseBody(req: Request): any {
@@ -95,6 +114,12 @@ export class Controller {
     res.status(500).send({ message });
   }
 
+  public static notImplemented(res: Response, data?: any) {
+    const message = "Not Implemented";
+    log.error(data);
+    res.status(501).send({ message });
+  }
+
   public static timeout(res: Response, data?: any) {
     const message = "Timeout";
     if (Buffer.isBuffer(data)) data = data.toString();
@@ -116,6 +141,16 @@ export function handleServerError(err: any, res: Response) {
   if (err === ControllerErrors.BAD_REQUEST) {
     return Controller.badRequest(res);
   }
+  if (err === ControllerErrors.UNAUTHORIZED) {
+    return Controller.unauthorized(res);
+  }
+  if (err === ControllerErrors.FORBIDDEN) {
+    return Controller.forbidden(res);
+  }
+  if (err === ControllerErrors.CONFLICT) {
+    return Controller.conflict(res);
+  }
+
   if (isDBConstraintError(err)) {
     return handleDatabaseConstraintsError(err, res);
   }

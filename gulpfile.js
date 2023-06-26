@@ -37,6 +37,10 @@ function copyLocales() {
   return gulp.src("app/locales/**").pipe(gulp.dest("dist/locales/"));
 }
 
+function copyYml() {
+  return gulp.src("app/**/*.yml").pipe(gulp.dest("dist/"));
+}
+
 function compile() {
   const tsResult = gulp
     .src(["app/**/*.ts"])
@@ -56,7 +60,7 @@ function compile() {
 
 const build = gulp.series(
   clean,
-  gulp.parallel(compile, copyViews, copyLocales),
+  gulp.parallel(compile, copyViews, copyLocales, copyYml),
 );
 
 function doServe() {
@@ -66,7 +70,7 @@ const serve = gulp.series(compile, doServe);
 
 const cleanServe = gulp.series(
   clean,
-  gulp.parallel(copyViews, copyLocales),
+  gulp.parallel(copyViews, copyLocales, copyYml),
   serve,
 );
 

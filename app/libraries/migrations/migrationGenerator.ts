@@ -1,8 +1,8 @@
-import Sequelize from "sequelize";
-import hash from "object-hash";
-import _ from "lodash";
 import { diff } from "deep-diff";
+import _ from "lodash";
+import hash from "object-hash";
 import prettier from "prettier";
+import Sequelize from "sequelize";
 
 import fs from "fs";
 import path from "path";

@@ -1,20 +1,41 @@
+import { Role } from "@/db/models/Role/model/Role";
+import { RoleNames } from "@/db/models/Role/types/RoleNames.type";
+import { Controller, getRoleFromToken } from "@/libraries/Controller";
+import authService from "@/services/AuthService";
 import { Request, Response } from "express";
-import { default as auth } from "@/controllers/v1/Auth";
 import _ from "lodash";
-import { Controller } from "@/libraries/Controller";
+
+const propertyMapper = {
+  createdById: "id",
+  updatedById: "id",
+};
 
 /*
   Validates a JWT
   puts decoded jwt in req.session.jwt
   puts user object with id, email and role in req.session.user
 */
-export function validateJWT(type: string) {
-  return (req: Request, res: Response, next: Function) => {
-    let token: string = null;
-    const authorization: string = req.get("Authorization");
-    if (authorization == null) {
-      Controller.unauthorized(res, "No Token Present");
-      return null;
+export interface Params {
+  [key: string]: any;
+}
+
+interface ValidateToken {
+  authorization: string;
+  next: Function;
+  session: Params;
+  type: string;
+}
+
+const validateToken = async ({
+  authorization,
+  next,
+  session,
+  type,
+}: ValidateToken) => {
+  try {
+    let token: string | null = null;
+    if (!authorization) {
+      throw "No token present";
     }
     const parts: Array<string> = authorization.split(" ");
     if (parts.length === 2) {
@@ -26,7 +47,94 @@ export function validateJWT(type: string) {
       }
     }
 
-    auth
+    const isValid = await authService
+      .validateJWT(token, type)
+      .then(decoded => {
+        if (!decoded) {
+          throw "Invalid Token";
+        }
+        session.jwt = decoded;
+        session.jwtstring = token;
+        session.user = _.pick(decoded, ["id", "uid_azure", "email"]);
+        next();
+        return true;
+      })
+      .catch(error => {
+        throw error;
+      });
+
+    return isValid;
+  } catch (error) {
+    throw error;
+  }
+};
+
+interface ValidateTypeIsInToken {
+  authorization: string;
+  next: Function;
+  session: Params;
+  types: Array<string>;
+}
+
+const validateTypeIsInToken = async ({
+  authorization,
+  next,
+  session,
+  types,
+}: ValidateTypeIsInToken) => {
+  try {
+    for (const type of types) {
+      const isTokenValid = await validateToken({
+        authorization,
+        next,
+        session,
+        type,
+      }).catch(() => null);
+      if (isTokenValid) {
+        return null;
+      }
+    }
+    throw "Invalid Token";
+  } catch (error) {
+    throw error;
+  }
+};
+
+export function atLeastOneTypeIsInToken(types: Array<string>) {
+  return (req: Request, res: Response, next: Function) => {
+    const authorization: string = req.get("Authorization");
+    validateTypeIsInToken({
+      authorization,
+      next,
+      session: req.session,
+      types,
+    }).catch(error => {
+      Controller.unauthorized(res, error);
+    });
+  };
+}
+
+export function validateJWT(type: string) {
+  return (req: Request, res: Response, next: Function) => {
+    const authorization: string = req.get("Authorization");
+    validateToken({
+      authorization,
+      next,
+      session: req.session,
+      type,
+    }).catch(error => Controller.unauthorized(res, error));
+  };
+}
+
+export function validateJWTOnQueryString(type: string, key = "token") {
+  return (req: Request, res: Response, next: Function) => {
+    const token = req.query[key] as string;
+    if (token == null) {
+      Controller.unauthorized(res, "No Token Present");
+      return null;
+    }
+
+    authService
       .validateJWT(token, type)
       .then(decoded => {
         if (!decoded) {
@@ -35,7 +143,7 @@ export function validateJWT(type: string) {
         }
         req.session.jwt = decoded;
         req.session.jwtstring = token;
-        req.session.user = _.pick(decoded, ["id", "email", "role"]);
+        req.session.user = _.pick(decoded, ["id", "email", "uid_azure"]);
         next();
         return null;
       })
@@ -94,6 +202,25 @@ export function appendUser(key = "userId") {
   };
 }
 
+export function appendEmployee(key = "uid_azure") {
+  return (req: Request, res: Response, next: Function) => {
+    const id = req.session.jwt.uid_azure;
+    if (id == null) return Controller.unauthorized(res);
+    if (!req.body) req.body = {};
+    req.body[key] = id;
+    next();
+  };
+}
+
+export function appendMiddleware(...properties: string[]) {
+  return (req: Request, res: Response, next: Function) => {
+    properties.forEach(property => {
+      req.body[property] = req.session.jwt[propertyMapper[property]];
+    });
+    next();
+  };
+}
+
 /*
   Strips nested objects, substituting with their id (if any)
 */
@@ -119,18 +246,6 @@ export function stripNestedObjects() {
 }
 
 /*
-  Only allows certain roles to pass
-*/
-export function filterRoles(roles: Array<string>) {
-  return (req: Request, res: Response, next: Function) => {
-    const role = req.session.jwt.role;
-    if (role == null) return Controller.unauthorized(res);
-    if (roles.indexOf(role) < 0) return Controller.unauthorized(res);
-    next();
-  };
-}
-
-/*
   Checks if the requested user is self
   ** Only applicable to UserController
 */
@@ -139,6 +254,78 @@ export function isSelfUser() {
     const id = req.session.jwt.id;
     if (id == null) return Controller.unauthorized(res);
     if (id !== parseInt(req.params.id)) return Controller.unauthorized(res);
+    next();
+  };
+}
+
+/*
+  Checks if the requested user is not self
+  ** Only applicable to UserController
+*/
+export function isNotSelfUser() {
+  return (req: Request, res: Response, next: Function) => {
+    const id = req.session.jwt.id;
+    if (id == null) return Controller.unauthorized(res);
+    if (id === parseInt(req.params.id)) return Controller.unauthorized(res);
+    next();
+  };
+}
+
+export function verifyAdminPermission() {
+  return async (req: Request, res: Response, next: Function) => {
+    if (req["canModify"]) {
+      next();
+    } else {
+      const roles = getRoleFromToken(req);
+      const [adminRole] = await Role.findAll({
+        where: {
+          name: RoleNames.ADMIN,
+        },
+      });
+
+      const hasRole = roles.find(role => role === adminRole.id);
+
+      req["canModify"] = !!hasRole;
+      next();
+    }
+  };
+}
+
+function ommitNullsValuesFromObj(obj) {
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      // Validate if not from prototype
+      if (Object.prototype.toString.call(obj[key]) === "[object Object]") {
+        ommitNullsValuesFromObj(obj[key]);
+      } else if (Array.isArray(obj[key])) {
+        for (let index = 0; index < obj[key].length; index++) {
+          ommitNullsValuesFromObj(obj[key][index]);
+        }
+      } else {
+        if (obj[key] === null) {
+          delete obj[key];
+        }
+      }
+    }
+  }
+}
+
+export function stripBodyNulls() {
+  return (req: Request, res: Response, next: Function) => {
+    if (!req.body) req.body = {};
+    ommitNullsValuesFromObj(req.body);
+    next();
+  };
+}
+
+export function validateAudience() {
+  return (req: Request, res: Response, next: Function) => {
+    const { userId, groupId } = req.body;
+    if (!(userId || groupId)) {
+      res.status(400).send({
+        message: "The group or user id is required",
+      });
+    }
     next();
   };
 }

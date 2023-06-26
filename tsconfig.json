@@ -1,17 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es2015",
+    "target": "es2020",
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": false,
     "preserveConstEnums": true,
-    "removeComments": true,
+    "removeComments": false,
     "sourceMap": true,
     "rootDir": "app",
     "outDir": "dist",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["app/*"]

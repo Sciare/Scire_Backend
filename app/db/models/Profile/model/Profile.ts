@@ -1,12 +1,12 @@
+import { BaseModel } from "@/libraries/BaseModel";
 import {
-  Table,
+  BelongsTo,
   Column,
   DataType,
-  BelongsTo,
   ForeignKey,
+  Table,
 } from "sequelize-typescript";
-import { BaseModel } from "@/libraries/BaseModel";
-import { User } from "./User";
+import { User } from "../../User/model/User";
 
 @Table({
   tableName: "profile",

@@ -1,9 +1,9 @@
+import { Profile } from "@/db/models/Profile/model/Profile";
 import { ModelController } from "@/libraries/ModelController";
-import { Profile } from "@/models/Profile";
-import { Router } from "express";
-import { validateJWT, filterOwner, appendUser } from "@/policies/General";
 import { validateBody } from "@/libraries/Validator";
+import { appendUser, filterOwner, validateJWT } from "@/policies/General";
 import { ProfileSchema } from "@/validators/Profile";
+import { Router } from "express";
 
 export class ProfileController extends ModelController<Profile> {
   constructor() {

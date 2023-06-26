@@ -1,10 +1,10 @@
-# sciare-backend
+# backgroundengagement-back
 
-sciare-backend Server, based on Flugzeug.
+backgroundengagement-back Server, based on Flugzeug.
 
 ## Development
 
-Read the documentation at ``docs/Framework.md``
+Read the documentation at `docs/Framework.md`
 
 ```
 npm run watch
@@ -16,7 +16,7 @@ npm run watch
 npm run build
 ```
 
-## Run in production 
+## Run in production
 
 ```
 npm start

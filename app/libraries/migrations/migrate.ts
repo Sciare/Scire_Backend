@@ -1,13 +1,13 @@
 require("dotenv").config();
 
-import { log } from "@/libraries/Log";
 import { db } from "@/db";
+import { log } from "@/libraries/Log";
 import path from "path";
 import Umzug from "umzug";
 
 const umzug = new Umzug({
   migrations: {
-    path: path.join(__dirname, "./../../migrations"),
+    path: path.join(__dirname, "./../../db/migrations"),
     params: [db.getQueryInterface()],
   },
   storage: "sequelize",

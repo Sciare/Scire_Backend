@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 
-import fs from "fs";
-import path from "path";
-import moment from "moment";
-import _ from "lodash";
 import { db } from "@/db";
+import fs from "fs";
+import _ from "lodash";
+import moment from "moment";
+import path from "path";
 import {
-  sortActions,
-  reverseModels,
-  parseDifference,
-  writeMigration,
   getMigration,
+  parseDifference,
+  reverseModels,
+  sortActions,
+  writeMigration,
 } from "./migrationGenerator";
 
-const MIGRATIONS_DIR = path.join(__dirname, "../../../app/migrations");
+const MIGRATIONS_DIR = path.join(__dirname, "../../../app/db/migrations");
 
 async function main() {
   const timestamp = moment().format("YYYYMMDDHHmmss");

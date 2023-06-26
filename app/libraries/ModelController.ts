@@ -1,16 +1,16 @@
-import { Request, Response, Router } from "express";
-import { log } from "./Log";
-import { db } from "@/db";
 import { config } from "@/config";
-import { Op, Model, ModelCtor } from "sequelize";
+import { db } from "@/db";
+import { Request, Response, Router } from "express";
 import _ from "lodash";
+import { Model, ModelCtor, Op } from "sequelize";
 import {
   Controller,
   ControllerErrors,
-  parseId,
-  parseBody,
   handleServerError,
+  parseBody,
+  parseId,
 } from "./Controller";
+import { log } from "./Log";
 
 const OPERATOR_ALIASES = {
   $eq: Op.eq,
@@ -462,5 +462,9 @@ export class ModelController<T extends Model> extends Controller {
     } catch (err) {
       handleServerError(err, res);
     }
+  }
+
+  async handleNotImplemented(req: Request, res: Response) {
+    return Controller.notImplemented(res);
   }
 }

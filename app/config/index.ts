@@ -1,15 +1,26 @@
-import { Dialect } from "sequelize/types";
+// import aws from "aws-sdk";
 import ip from "ip";
 import path from "path";
+import { Dialect } from "sequelize/types";
 
 export const config = {
   root: path.normalize(`${__dirname}/..`),
 
   env: process.env.NODE_ENV || "development",
 
+  aws: {
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    sessionToken: process.env.AWS_SESSION_TOKEN,
+    region: process.env.AWS_REGION,
+    s3: {
+      fileBucketName: process.env.APP_AWS_FILE_BUCKET,
+    },
+  },
+
   jwt: {
     secret:
-      process.env.JWT_SECRET || "H6YpXaVCMmCL98_sGWsV-r10_wS4WyUS8Obgsu87GMA",
+      process.env.JWT_SECRET || "tYw9UcCxYKHjOTzcIJPPgoQJxWc6kH177UuDY0l4Qsw",
     access: {
       expiry: {
         unit: "hours",
@@ -36,6 +47,29 @@ export const config = {
       subject: "reset",
       audience: "user",
     },
+    confirmEmail: {
+      expiry: {
+        unit: "hours",
+        length: 12,
+      },
+      subject: "confirmEmail",
+      audience: "user",
+    },
+    exchange: {
+      expiry: {
+        unit: "minutes",
+        length: 10,
+      },
+      subject: "exchange",
+      audience: "user",
+    },
+  },
+
+  emailAuth: {
+    requireEmailConfirmation:
+      process.env.EMAIL_AUTH_REQUIRE_EMAIL_CONFIRMATION === "true",
+    emailConfirmUrl: process.env.CONFIRM_PAGE || "http://example.com/confirm",
+    passwordResetUrl: process.env.RESET_PAGE || "http://example.com/reset",
   },
 
   email: {
@@ -52,6 +86,10 @@ export const config = {
       user: process.env.EMAIL_SMTP_USER || "(your SMTP user)",
       pass: process.env.EMAIL_SMTP_PASS || "(your SMTP password)",
     },
+    routes: {
+      passwordRecovery: process.env.PASSWORD_RECOVERY_ROUTE,
+    },
+    defaultPassword: process.env.DEFAULT_PASSWORD || "adminadmin",
   },
 
   server: {
@@ -64,6 +102,7 @@ export const config = {
     offset: 0,
     // Show detailed error responses or not
     debug: true,
+    order: [["id", "ASC"]],
   },
 
   log: {
@@ -86,14 +125,22 @@ export const config = {
   },
 
   db: {
-    database: process.env.DB_NAME || "sciare-db",
+    database: process.env.DB_NAME || "backgroundengagement-back",
     username: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "",
-    host: process.env.DB_HOST || "localhost",
+    password: process.env.DB_PASSWORD || "test123",
+    //host: process.env.DB_HOST || "localhost",
+    host: process.env.DB_HOST || "database",
     dialect: (process.env.DB_TYPE || "postgres") as Dialect,
     logging: false,
     storage: process.env.DB_STORAGE || "db.sqlite",
     timezone: "utc", // IMPORTANT For correct timezone management with DB.
+    encryptSecret: process.env.DB_ENCRYPT_SECRET,
+  },
+  swagger: {
+    route: process.env.SWAGGER_ROUTE || "/swagger",
+    username: process.env.SWAGGER_USERNAME || "admin",
+    password: process.env.SWAGGER_PASSWORD || "password",
+    hasAuth: process.env.SWAGGER_HAS_AUTH || false,
   },
 };
 
@@ -108,3 +155,12 @@ if (config.db.dialect === "sqlite") {
   // sqlite dialect doesn't support timezone and crashes if we pass one (it is utc by default anyway)
   delete config.db.timezone;
 }
+
+//AWS environment variables needed for s3
+
+// aws.config.update({
+//   secretAccessKey: config.aws.secretAccessKey,
+//   accessKeyId: config.aws.accessKeyId,
+//   sessionToken: config.aws.sessionToken,
+//   region: config.aws.region,
+// });

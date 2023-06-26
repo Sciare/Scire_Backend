@@ -1,9 +1,9 @@
-import Socketio from "socket.io";
-import _ from "lodash";
-import { server } from "@/server";
-import { default as auth } from "@/controllers/v1/Auth";
-import EventService from "@/services/EventService";
 import { log } from "@/libraries/Log";
+import { server } from "@/server";
+import authService from "@/services/AuthService";
+import EventService from "@/services/EventService";
+import _ from "lodash";
+import Socketio from "socket.io";
 
 // Initialize websockets
 export const io = Socketio();
@@ -19,7 +19,7 @@ export function setupSockets(): Promise<any> {
     // Validate access JWT for auth
     if (token == null) return next(new Error("No Token Present"));
 
-    auth
+    authService
       .validateJWT(token, "access")
       .then(decoded => {
         if (!decoded) {
