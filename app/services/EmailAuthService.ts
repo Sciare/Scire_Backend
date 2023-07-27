@@ -1,7 +1,5 @@
 import { config } from "@/config";
 import { EmailData } from "@/db/interfaces/Email/Email.interfaces";
-import { Employee } from "@/db/models/Employee/model/Employee";
-import { StatusType } from "@/db/models/Employee/types/StatusType";
 import { Profile } from "@/db/models/Profile/model/Profile";
 import { Role } from "@/db/models/Role/model/Role";
 import { User } from "@/db/models/User/model/User";

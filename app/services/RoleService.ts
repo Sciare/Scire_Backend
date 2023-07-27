@@ -1,5 +1,6 @@
 import { RoleById } from "@/db/interfaces/Role/Role.interfaces";
 import { Role } from "@/db/models/Role/model/Role";
+import { UserRole } from "@/db/models/UserRole/model/UserRole";
 import { RoleNotFound } from "@/errors/role/RoleNotFound";
 import { Query } from "@/libraries/ModelController";
 
@@ -30,4 +31,18 @@ export const getAllRoles = async (queryParams: Query) => {
   });
 
   return { count, data };
+};
+
+export const addDefaultRoleToUser = async (userId: number) => {
+  const role: Role = await Role.findOne({
+    where: { isDefault: true },
+  });
+
+  if (!role) {
+    return;
+  }
+
+  await UserRole.findOrCreate({
+    where: { roleId: role.id, userId },
+  });
 };
