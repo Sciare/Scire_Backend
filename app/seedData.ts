@@ -4,6 +4,7 @@ import { Region } from "./db/models/Region/model/Region";
 import { RegionCodeAlphaTree } from "./db/models/Region/types/RegionCodeAlphaThree";
 import { Role } from "./db/models/Role/model/Role";
 import { RoleNames } from "./db/models/Role/types/RoleNames.type";
+import { School } from "./db/models/School/model/School";
 import { User } from "./db/models/User/model/User";
 
 async function createDefaultPoliciesAndUsers() {
@@ -115,6 +116,27 @@ async function createDefaultPoliciesAndUsers() {
   await admin2.addRole(adminRole.id);
 }
 
+async function createDefaultUcateciSchols() {
+  await School.create({
+    name: "Ingenieria en Sistemas",
+  });
+  await School.create({
+    name: "Ingenieria Civil",
+  });
+  await School.create({
+    name: "Ingenieria Industrial",
+  });
+  await School.create({
+    name: "Arquitectura",
+  });
+  await School.create({
+    name: "Administracion",
+  });
+  await School.create({
+    name: "Psicologia",
+  });
+}
+
 export async function seed(): Promise<void> {
   // Do your seed code here.
 
@@ -142,6 +164,7 @@ export async function seed(): Promise<void> {
     });
   }
 
+  createDefaultUcateciSchols();
   // Creates first admin user
   const count = await User.count();
   if (count === 0) {

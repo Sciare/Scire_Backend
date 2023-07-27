@@ -1,19 +1,38 @@
 import Joi from "joi";
 
-export const GroupSchema: Joi.ObjectSchema = Joi.object({
+export const CourseSchema: Joi.ObjectSchema = Joi.object({
   name: Joi.string()
     .min(1)
     .max(60)
     .required(),
-  createdBy: Joi.number().integer(),
-  updateBy: Joi.number().integer(),
+  description: Joi.string()
+    .min(1)
+    .max(400)
+    .required(),
+  school_id: Joi.number()
+    .integer()
+    .required(),
+  duration: Joi.number().integer(),
   is_active: Joi.boolean().default(true),
+  tags: Joi.array()
+    .items(Joi.string())
+    .required(),
+  cover_notDefinitive: Joi.string().uri(),
+  cover: Joi.number(),
+  author: Joi.number(),
 });
 
-export const updateNameGroup: Joi.ObjectSchema = Joi.object({
+export const UpdateCourseSchema: Joi.ObjectSchema = Joi.object({
   name: Joi.string()
     .min(1)
-    .max(60)
-    .required(),
-  updatedBy: Joi.number().integer(),
+    .max(60),
+  description: Joi.string()
+    .min(1)
+    .max(400),
+  school_id: Joi.number().integer(),
+  duration: Joi.number().integer(),
+  is_active: Joi.boolean().default(true),
+  tags: Joi.array().items(Joi.string()),
+  cover_notDefinitive: Joi.string().uri(),
+  cover: Joi.number(),
 });
