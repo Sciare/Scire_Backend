@@ -7,7 +7,31 @@ export const config = {
   root: path.normalize(`${__dirname}/..`),
 
   env: process.env.NODE_ENV || "development",
-
+  auth: {
+    microsoft: {
+      clientID: process.env.MICROSOFT_CLIENT_ID,
+      tenantID: process.env.MICROSOFT_TENANT_ID,
+      clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+      callbackURL: process.env.MICROSOFT_CALLBACK_URL,
+      registerCallbackURL: process.env.MICROSOFT_REGISTER_CALLBACK_URL,
+    },
+    azure: {
+      tokenEndpoint: process.env.AZURE_TOKEN_ENDPOINT,
+      scope: process.env.AZURE_SCOPE,
+      grantType: process.env.AZURE_GRANT_TYPE,
+      Blob: {
+        storageAccountName: process.env.STORAGE_ACCOUNT_NAME, // Azure Storage Account Name (required for blob storage authentication with SAS tokens).
+        connectionString: process.env.CONNECTION_STRING,
+        containerName: process.env.CONTAINER_NAME,
+        storageAccountKey: process.env.STORAGE_KEY,
+      },
+    },
+    routes: {
+      home_page: process.env.HOME_PAGE,
+      login_page: process.env.LOGIN_PAGE,
+      register_page: process.env.REGISTER_PAGE,
+    },
+  },
   aws: {
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,

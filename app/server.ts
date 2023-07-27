@@ -10,14 +10,13 @@ import { createServer } from "http";
 import { noop } from "lodash";
 import methodOverride from "method-override";
 import morgan from "morgan";
-// import passport from "passport";
+import passport from "passport";
 import path from "path";
 import favicon from "serve-favicon";
 import swaggerUi from "swagger-ui-express";
 
 export const app = express();
 export const server = createServer(app);
-
 // Security middleware
 app.use(helmet());
 // Util middleware
@@ -84,8 +83,8 @@ app.use(
 app.set("views", `${config.root}/views`);
 app.set("view engine", "ejs");
 
-// // Passport for auth and SSO
-// app.use(passport.initialize());
+// Passport for auth and SSO
+app.use(passport.initialize());
 
 // Enable CORS
 app.use(function(req, res, next) {
@@ -107,7 +106,7 @@ routes(app);
 export function setupServer(): Promise<void> {
   return new Promise((resolve, _reject) => {
     server.listen(config.server.port, () => {
-      log.info(`Server started at port ${config.server.port}`);
+      log.info(`graph-report-backend started at port ${config.server.port}`);
       resolve();
     });
   });
