@@ -1,5 +1,5 @@
 import { ModelController } from "@/libraries/ModelController";
-import { Course } from "@/db/models/Course/model/Course";
+import { Enrollment } from "@/db/models/Enrollment/model/Enrollment";
 import { Router } from "express";
 import {
   validateJWT,
@@ -8,13 +8,16 @@ import {
   stripNestedObjects,
 } from "@/policies/General";
 import { validateBody } from "@/libraries/Validator";
-import { CourseSchema, UpdateCourseSchema } from "@/validators/Course";
+import {
+  EnrollmentSchema,
+  UpdateEnrollmentSchema,
+} from "@/validators/Enrollment";
 
-export class CourseController extends ModelController<Course> {
+export class EnrollmentController extends ModelController<Enrollment> {
   constructor() {
     super();
-    this.name = "course";
-    this.model = Course;
+    this.name = "enrollment";
+    this.model = Enrollment;
   }
 
   routes(): Router {
@@ -26,7 +29,7 @@ export class CourseController extends ModelController<Course> {
     );
     this.router.get(
       "/:id",
-      // validateJWT("access"),
+      //validateJWT("access"),
       //filterOwner(),
       (req, res) => this.handleFindOne(req, res),
     );
@@ -35,16 +38,15 @@ export class CourseController extends ModelController<Course> {
       //validateJWT("access"),
       //filterOwner(),
       //appendUser(),
-      validateBody(CourseSchema),
+      validateBody(EnrollmentSchema),
       (req, res) => this.handleCreate(req, res),
     );
     this.router.put(
       "/:id",
       //validateJWT("access"),
-      //stripNestedObjects(),
       //filterOwner(),
       //appendUser(),
-      validateBody(UpdateCourseSchema),
+      validateBody(UpdateEnrollmentSchema),
       (req, res) => this.handleUpdate(req, res),
     );
     this.router.delete(
@@ -58,5 +60,5 @@ export class CourseController extends ModelController<Course> {
   }
 }
 
-const course = new CourseController();
-export default course;
+const enrollment = new EnrollmentController();
+export default enrollment;

@@ -1,5 +1,5 @@
 import { ModelController } from "@/libraries/ModelController";
-import { Course } from "@/db/models/Course/model/Course";
+import { Comment } from "@/db/models/Comment/model/Comment";
 import { Router } from "express";
 import {
   validateJWT,
@@ -8,13 +8,13 @@ import {
   stripNestedObjects,
 } from "@/policies/General";
 import { validateBody } from "@/libraries/Validator";
-import { CourseSchema, UpdateCourseSchema } from "@/validators/Course";
+import { CommentSchema, UpdateCommentSchema } from "@/validators/Comment";
 
-export class CourseController extends ModelController<Course> {
+export class CommentController extends ModelController<Comment> {
   constructor() {
     super();
-    this.name = "course";
-    this.model = Course;
+    this.name = "comment";
+    this.model = Comment;
   }
 
   routes(): Router {
@@ -26,25 +26,26 @@ export class CourseController extends ModelController<Course> {
     );
     this.router.get(
       "/:id",
-      // validateJWT("access"),
+      //validateJWT("access"),
       //filterOwner(),
       (req, res) => this.handleFindOne(req, res),
     );
     this.router.post(
       "/",
       //validateJWT("access"),
+      stripNestedObjects(),
       //filterOwner(),
       //appendUser(),
-      validateBody(CourseSchema),
+      validateBody(CommentSchema),
       (req, res) => this.handleCreate(req, res),
     );
     this.router.put(
       "/:id",
       //validateJWT("access"),
-      //stripNestedObjects(),
+      stripNestedObjects(),
       //filterOwner(),
       //appendUser(),
-      validateBody(UpdateCourseSchema),
+      validateBody(UpdateCommentSchema),
       (req, res) => this.handleUpdate(req, res),
     );
     this.router.delete(
@@ -58,5 +59,5 @@ export class CourseController extends ModelController<Course> {
   }
 }
 
-const course = new CourseController();
-export default course;
+const comment = new CommentController();
+export default comment;
