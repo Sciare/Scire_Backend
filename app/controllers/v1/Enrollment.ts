@@ -6,6 +6,7 @@ import {
   filterOwner,
   appendUser,
   stripNestedObjects,
+  dontRepeatEnrollment,
 } from "@/policies/General";
 import { validateBody } from "@/libraries/Validator";
 import {
@@ -38,6 +39,7 @@ export class EnrollmentController extends ModelController<Enrollment> {
       //validateJWT("access"),
       //filterOwner(),
       //appendUser(),
+      dontRepeatEnrollment(),
       validateBody(EnrollmentSchema),
       (req, res) => this.handleCreate(req, res),
     );

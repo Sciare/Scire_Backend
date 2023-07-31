@@ -116,7 +116,7 @@ async function createDefaultPoliciesAndUsers() {
   await admin2.addRole(adminRole.id);
 }
 
-async function createDefaultUcateciSchols() {
+async function createDefaultUcateciSchools() {
   await School.create({
     name: "Ingenieria en Sistemas",
   });
@@ -164,7 +164,7 @@ export async function seed(): Promise<void> {
     });
   }
 
-  createDefaultUcateciSchols();
+  createDefaultUcateciSchools();
   // Creates first admin user
   const count = await User.count();
   if (count === 0) {

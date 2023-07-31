@@ -1,3 +1,4 @@
+import { Enrollment } from "@/db/models/Enrollment/model/Enrollment";
 import { Role } from "@/db/models/Role/model/Role";
 import { RoleNames } from "@/db/models/Role/types/RoleNames.type";
 import { Controller, getRoleFromToken } from "@/libraries/Controller";
@@ -198,6 +199,25 @@ export function appendUser(key = "userId") {
     if (id == null) return Controller.unauthorized(res);
     if (!req.body) req.body = {};
     req.body[key] = id;
+    next();
+  };
+}
+
+export function dontRepeatEnrollment() {
+  return async (req: Request, res: Response, next: Function) => {
+    const { userId, courseId } = req.body;
+    const isSubscribed = await Enrollment.findOne({
+      where: {
+        userId,
+        courseId,
+      },
+    });
+    console.log(isSubscribed);
+    if (isSubscribed)
+      return Controller.conflict(
+        res,
+        "you already are subscribed in this course",
+      );
     next();
   };
 }
