@@ -13,6 +13,7 @@ import {
   isSelfUser,
   validateJWT,
 } from "@/policies/General";
+import { getTeacherDashboard } from "@/services/DashboardService";
 import { UserSchema } from "@/validators/User";
 import { Request, Response, Router } from "express";
 
@@ -198,13 +199,20 @@ export class UserController extends ModelController<User> {
      *         $ref: '#/components/responses/InternalServerError'
      */
     this.router.get(
+      "/dashboard",
+      //validateJWT("access"),
+      //AuthMiddleware(),
+      //isSelfUser(),
+      (req, res) => getTeacherDashboard(req, res),
+    );
+ 
+    this.router.get(
       "/:id",
       //validateJWT("access"),
       //AuthMiddleware(),
       //isSelfUser(),
       (req, res) => this.handleFindOne(req, res),
     );
-
     /**
      * @swagger
      * '/user/{id}':

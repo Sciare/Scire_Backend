@@ -51,7 +51,7 @@ export class CommentController extends ModelController<Comment> {
     this.router.delete(
       "/:id",
       //validateJWT("access"),
-      //filterOwner(),
+      //}filterOwner(),
       (req, res) => this.handleDelete(req, res),
     );
 

@@ -11,4 +11,5 @@ export const EnrollmentSchema: Joi.ObjectSchema = Joi.object({
 
 export const UpdateEnrollmentSchema: Joi.ObjectSchema = Joi.object({
   is_active: Joi.boolean().default(true),
+  is_started: Joi.boolean(),
 });
