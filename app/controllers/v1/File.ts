@@ -5,11 +5,19 @@ import {
   parseBody,
   parseId,
 } from "@/libraries/Controller";
-import { ModelController } from "@/libraries/ModelController";
+import {
+  ModelController,
+  parseAttributes,
+  parseInclude,
+  parseWhere,
+} from "@/libraries/ModelController";
 import { validateBody } from "@/libraries/Validator";
 import { AuthMiddleware } from "@/policies/Authorization";
 import { validateJWT } from "@/policies/General";
-import { createFileInDB, deleteFileFromS3AndDB } from "@/services/FileService";
+import {
+  createFileInDB,
+  deleteFileFromBlobAndDB,
+} from "@/services/FileService";
 import { FileSchema } from "@/validators/File";
 import { Request, Response, Router } from "express";
 
@@ -152,7 +160,7 @@ export class FileController extends ModelController<File> {
       "/:id",
       validateJWT("access"),
       AuthMiddleware(),
-      (req, res) => this.handleFindOne(req, res),
+      (req, res) => this.findOneFile(req, res),
     );
 
     /**
@@ -285,7 +293,7 @@ export class FileController extends ModelController<File> {
 
   private async deleteFile(req: Request, res: Response): Promise<void> {
     try {
-      await deleteFileFromS3AndDB(parseId(req));
+      await deleteFileFromBlobAndDB(parseId(req));
       return Controller.noContent(res);
     } catch (error) {
       handleServerError(error, res);
@@ -299,6 +307,22 @@ export class FileController extends ModelController<File> {
       const result = await createFileInDB({ fileName, type });
       return Controller.created(res, result);
     } catch (err) {
+      handleServerError(err, res);
+    }
+  }
+
+  async findOneFile(req: Request, res: Response) {
+    try {
+      const where = parseWhere(req);
+      const id = parseId(req);
+      const attributes = parseAttributes(req);
+      const include = parseInclude(req, this.model);
+      const result = await this.findOne(id, { where, include, attributes });
+      return Controller.ok(res, result);
+    } catch (err) {
+      //For this specific case if the File is not found we return NOT FOUND controller here
+      //becuase the populateURL function throw an error in the result
+      Controller.notFound(res);
       handleServerError(err, res);
     }
   }

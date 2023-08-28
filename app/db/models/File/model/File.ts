@@ -7,6 +7,19 @@ import { AfterFind, Column, DataType, Table } from "sequelize-typescript";
   tableName: "file",
 })
 export class File extends BaseModel<File> {
+  static handleFindAll() {
+    throw new Error("Method not implemented.");
+  }
+  static map(arg0: (file: any) => any): any {
+    throw new Error("Method not implemented.");
+  }
+  @Column({
+    type: DataType.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  })
+  id: number;
+
   @Column({
     type: DataType.STRING,
     allowNull: false,
@@ -31,6 +44,7 @@ export class File extends BaseModel<File> {
     defaultValue: false,
   })
   isUploaded: boolean;
+  static url: any;
 
   @Column({ type: DataType.VIRTUAL })
   get url() {
@@ -47,10 +61,13 @@ export class File extends BaseModel<File> {
   _downloadUrl: string;
 
   async populateUrl(): Promise<string> {
-    this._url = await getPublicReadUrl(this.path, config.aws.s3.fileBucketName);
+    this._url = await getPublicReadUrl(
+      this.path,
+      config.auth.azure.Blob.containerName,
+    );
     this._downloadUrl = await getPublicReadUrl(
       this.path,
-      config.aws.s3.fileBucketName,
+      config.auth.azure.Blob.containerName,
       true,
       this.fileName,
     );

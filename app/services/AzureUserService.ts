@@ -22,7 +22,7 @@ export const createUserFromAzure = async ({
     throw new InvalidMicrosoftAccount();
   }
 
-  const azureId = azureUser.id;
+  //const azureId = azureUser.id;
   const firstName = azureUser.firstName;
   const lastName = azureUser.lastName;
   const fullName = azureUser.fullName;
@@ -34,7 +34,7 @@ export const createUserFromAzure = async ({
     isActive: true,
     isEmailConfirmed: true,
     lastName,
-    azureId,
+    //azureId,
     name: fullName,
     password: config.email.defaultPassword, // for Ms and Google, we don't use the password field
   };

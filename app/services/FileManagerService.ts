@@ -1,130 +1,138 @@
-import { log } from "@/libraries/Log";
-import { retry } from "@/libraries/util";
-import aws from "aws-sdk";
+import { config } from "@/config";
+import {
+  BlobSASPermissions,
+  BlobUploadCommonResponse,
+  BlockBlobUploadOptions,
+  generateBlobSASQueryParameters,
+  StorageSharedKeyCredential,
+} from "@azure/storage-blob";
+import { Readable } from "stream";
 
-const s3 = new aws.S3({
-  endpoint: undefined,
-  s3ForcePathStyle: true,
-});
+const { BlobServiceClient } = require("@azure/storage-blob");
+export const connectionString = config.auth.azure.Blob.connectionString;
+export const containerName = config.auth.azure.Blob.containerName;
+const blobServiceClient = BlobServiceClient.fromConnectionString(
+  connectionString,
+);
+export const containerClient = blobServiceClient.getContainerClient(
+  containerName,
+);
 
-export const deleteS3File = async (params: aws.S3.DeleteObjectRequest) => {
-  try {
-    await s3.deleteObject(params).promise();
-  } catch (error) {
-    log.error(error);
-    throw error;
-  }
-};
-
-export const getS3File = async (params: aws.S3.GetObjectRequest) => {
-  try {
-    const s3Object = await s3.getObject(params).promise();
-    if (
-      s3Object == null ||
-      s3Object.Body == null ||
-      s3Object.ContentLength == 0
-    ) {
-      return null;
-    }
-
-    return s3Object;
-  } catch (error) {
-    // Catching NoSuchKey
-    if (error.statusCode === 404) {
-      return null;
-    }
-    log.error(error);
-    throw error;
-  }
-};
-
-export const getS3List = async (params: aws.S3.ListObjectsV2Request) => {
-  try {
-    const s3Object = await s3.listObjectsV2(params).promise();
-    if (
-      s3Object == null ||
-      s3Object.Contents == null ||
-      s3Object.Contents.length == 0
-    ) {
-      return null;
-    }
-
-    return s3Object;
-  } catch (error) {
-    // Catching NoSuchKey
-    if (error.statusCode === 404) {
-      return null;
-    }
-    log.error(error);
-    throw error;
-  }
-};
-
-export const putS3File = async (params: aws.S3.PutObjectRequest) => {
-  try {
-    const putResponse = await s3.putObject(params).promise();
-
-    return putResponse;
-  } catch (error) {
-    log.error(error);
-    throw error;
-  }
-};
-
-export const getS3FileStream = async (params: aws.S3.GetObjectRequest) => {
-  try {
-    // Retrieve metadata first to validate object exists
-    await s3.headObject(params).promise();
-    const objectStream = s3.getObject(params).createReadStream();
-
-    return objectStream;
-  } catch (error) {
-    // Catching NoSuchKey
-    if (error.statusCode === 404) {
-      return null;
-    }
-    log.error(error);
-    throw error;
-  }
-};
-
-export const getPublicReadUrl = (
+export const getPublicReadUrl = async (
   path: string,
-  bucket: string,
+  containerName: string,
   download = false,
   fileName = "",
 ): Promise<string> => {
-  const params = {
-    Bucket: bucket,
-    Key: path,
-    Expires: 10 * 60, // 10 minutes
-    ResponseContentDisposition: download
-      ? `attachment; filename="${fileName}"`
-      : undefined,
-  };
-  return retry<string>(() => s3.getSignedUrlPromise("getObject", params)).catch(
-    err => {
-      log.error("Error getting signed url.", err);
-      return "";
-    },
+  const containerUrl = containerClient.url;
+  const blobName = path;
+
+  const sharedKeyCredential = new StorageSharedKeyCredential(
+    config.auth.azure.Blob.storageAccountName,
+    config.auth.azure.Blob.storageAccountKey,
   );
+
+  const permissions = download
+    ? BlobSASPermissions.parse("r")
+    : BlobSASPermissions.parse("r"); // Adjust the permissions as per your requirements
+
+  const expiryDate = new Date();
+  expiryDate.setHours(expiryDate.getHours() + 1); // Set the expiry date/time as per your requirements
+
+  const sasQueryParameters = generateBlobSASQueryParameters(
+    {
+      containerName,
+      blobName,
+      permissions,
+      startsOn: new Date(),
+      expiresOn: expiryDate,
+    },
+    sharedKeyCredential,
+  );
+
+  const sasUrl = `${containerUrl}/${blobName}?${sasQueryParameters.toString()}`;
+
+  return sasUrl;
 };
 
-export const getPublicUploadUrl = (
+export const getPublicUploadUrl = async (
   path: string,
   contentType: string,
-  bucket: string,
+  containerName: string,
 ): Promise<string> => {
-  const params = {
-    Bucket: bucket,
-    Key: path,
-    ContentType: contentType,
-    Expires: 10 * 60, // 10 minutes
-  };
-  return retry<string>(() => s3.getSignedUrlPromise("putObject", params)).catch(
-    err => {
-      log.error("Error getting signed url.", err);
-      return "";
-    },
+  const containerUrl = containerClient.url;
+  const blobName = path;
+
+  const sharedKeyCredential = new StorageSharedKeyCredential(
+    config.auth.azure.Blob.storageAccountName,
+    config.auth.azure.Blob.storageAccountKey,
   );
+
+  const permissions = BlobSASPermissions.parse("w"); // Permiso de escritura
+
+  const expiryDate = new Date();
+  expiryDate.setMinutes(expiryDate.getMinutes() + 10); // Expiración de 10 minutos (ajusta según tus necesidades)
+
+  const sasQueryParameters = generateBlobSASQueryParameters(
+    {
+      containerName,
+      blobName,
+      permissions,
+      startsOn: new Date(),
+      expiresOn: expiryDate,
+    },
+    sharedKeyCredential,
+  );
+  const sasUrl = `${containerUrl}/${blobName}?${sasQueryParameters.toString()}`;
+  return sasUrl;
+};
+
+export const getBlobFileStream = async (
+  containerName: string,
+  blobName: string,
+): Promise<Readable | null> => {
+  try {
+    const blobClient = containerClient.getBlobClient(blobName);
+    const exists = await blobClient.exists();
+    if (!exists) {
+      return null;
+    }
+
+    const downloadResponse = await blobClient.download();
+    const blobStream = downloadResponse.readableStreamBody;
+
+    return blobStream;
+  } catch (error) {
+    if (error.statusCode === 404) {
+      return null;
+    }
+    console.error(error);
+    throw error;
+  }
+};
+
+export const putBlobFile = async (
+  blobName: string,
+  data: any,
+  options?: BlockBlobUploadOptions,
+): Promise<BlobUploadCommonResponse> => {
+  try {
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    const response = await blockBlobClient.upload(data, data.length, options);
+    console.log("jey");
+    return response;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const deleteBlobFile = async (blobName: string) => {
+  try {
+    const blobClient = containerClient.getBlobClient(blobName);
+    await blobClient.delete();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };

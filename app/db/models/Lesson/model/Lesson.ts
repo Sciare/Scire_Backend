@@ -1,11 +1,11 @@
+import { BaseModel } from "@/libraries/BaseModel";
 import {
-  Table,
+  BelongsTo,
   Column,
   DataType,
   ForeignKey,
-  BelongsTo,
+  Table,
 } from "sequelize-typescript";
-import { BaseModel } from "@/libraries/BaseModel";
 import { Course } from "../../Course/model/Course";
 import { File } from "../../File/model/File";
 
@@ -50,9 +50,4 @@ export class Lesson extends BaseModel<Lesson> {
 
   @BelongsTo(() => File, { as: "Video" })
   file: File;
-
-  @Column({
-    type: DataType.STRING,
-  })
-  video_url_notDefinitive: string;
 }
