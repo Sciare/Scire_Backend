@@ -106,7 +106,7 @@ routes(app);
 export function setupServer(): Promise<void> {
   return new Promise((resolve, _reject) => {
     server.listen(config.server.port, () => {
-      log.info(`graph-report-backend started at port ${config.server.port}`);
+      log.info(`scire-backend started at port ${config.server.port}`);
       resolve();
     });
   });

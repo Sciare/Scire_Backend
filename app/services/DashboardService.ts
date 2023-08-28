@@ -30,7 +30,7 @@ const subscribersCourses = async req => {
   return activeStudents.count;
 };
 
-const startedCoursesPercent = async req => {
+const startedCoursesPercent = async (req, subscribersTotal) => {
   const id = await decodeToken(req.headers.authorization);
   const startedPercent = await Enrollment.findAndCountAll({
     include: [
@@ -46,14 +46,13 @@ const startedCoursesPercent = async req => {
     },
   });
 
-  const percent =
-    (startedPercent.count / (await subscribersCourses(req))) * 100;
+  const percent = (startedPercent.count / subscribersTotal) * 100;
   return `${percent}%`;
 };
 
 export const getTeacherDashboard = async (req: Request, res: Response) => {
   const uploadedCourses = await uploadedCourse(req);
   const students = await subscribersCourses(req);
-  const startedPercents = await startedCoursesPercent(req);
+  const startedPercents = await startedCoursesPercent(req, students);
   return Controller.ok(res, { uploadedCourses, students, startedPercents });
 };

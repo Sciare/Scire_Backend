@@ -1,14 +1,14 @@
+import { User } from "@/db/models/User/model/User";
+import { BaseModel } from "@/libraries/BaseModel";
 import {
-  Table,
+  BelongsTo,
   Column,
   DataType,
   ForeignKey,
-  BelongsTo,
+  Table,
 } from "sequelize-typescript";
-import { BaseModel } from "@/libraries/BaseModel";
-import { User } from "@/db/models/User/model/User";
-import { School } from "../../School/model/School";
 import { File } from "../../File/model/File";
+import { School } from "../../School/model/School";
 
 @Table({
   tableName: "course",
@@ -69,12 +69,6 @@ export class Course extends BaseModel<Course> {
     allowNull: true,
   })
   cover: number;
-
-  @Column({
-    type: DataType.STRING,
-    defaultValue: true,
-  })
-  cover_notDefinitive: string;
 
   @BelongsTo(() => File, { as: "Cover" })
   file: File;
