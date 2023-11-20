@@ -53,7 +53,7 @@ export const createFileInDB = async ({ fileName, type }: CreateFileParams) => {
   const extension = extname(fileName).toLowerCase();
   const path = `${type}/${uuidv4()}${extension}`;
   const contentType = mime.contentType(fileName) || "application/octet-stream";
-  const validExtensions = [".jpeg", ".jpg", ".png"];
+  const validExtensions = [".jpeg", ".jpg", ".png", ".mp4", "mov"];
 
   if (!validExtensions.includes(extension)) {
     throw new Error("Invalid extension");
