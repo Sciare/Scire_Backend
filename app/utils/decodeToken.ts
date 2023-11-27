@@ -1,8 +1,17 @@
 const jwt = require("jsonwebtoken");
 
-export const decodeToken = async (header: string) => {
-  const token = header.split(" ")[1];
-  const decodedToken = await jwt.verify(token, process.env.JWT_SECRET);
-  const userId = decodedToken.id;
-  return userId;
+export const decodeToken = async (header: string): Promise<number | null> => {
+  if (!header || !header.startsWith("Bearer ")) {
+    console.error("Invalid token format");
+    return null;
+  }
+
+  try {
+    const token = header.split(" ")[1];
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    return decodedToken.id;
+  } catch (error) {
+    console.error("Decode error: ", error);
+    return null;
+  }
 };

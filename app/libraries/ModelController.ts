@@ -187,7 +187,7 @@ export function parseInclude(req: Request, model: ModelCtor<any>): Array<any> {
       throw ControllerErrors.BAD_REQUEST;
     }
 
-    const tryWithFilter = (m: string, model: ModelCtor<any>) => {
+    const tryWithFilter = (m: string, model: ModelCtor<any>, querys?: any) => {
       if (!m.length) {
         throw ControllerErrors.BAD_REQUEST;
       }
@@ -195,7 +195,7 @@ export function parseInclude(req: Request, model: ModelCtor<any>): Array<any> {
        Two options here:
        1. We have a Model name (like User) or a Model name with filter (like User.filter)
        2. We have the name of the property for the association (like 'user' or 'owner')
-  
+
        1 always starts with uppercase, 2 with lowercase
       */
 
@@ -226,8 +226,13 @@ export function parseInclude(req: Request, model: ModelCtor<any>): Array<any> {
           return model["filter"](filterName);
         }
       }
+      const { where, required } = querys ?? {};
 
-      return { model: getModelFromList(m), required: false };
+      return {
+        model: getModelFromList(m),
+        where: sanitizeWhere(where),
+        required: !!required,
+      };
     };
 
     const parseIncludeRecursive = (item, model: ModelCtor<any>) => {
@@ -236,14 +241,27 @@ export function parseInclude(req: Request, model: ModelCtor<any>): Array<any> {
         return tryWithFilter(item, model);
       } else {
         // Include with nested includes
-        const modelName: string = Object.keys(item)[0];
-        const content = item[modelName];
+        let modelName: string = Object.keys(item)[0];
+        let content = item[modelName];
+        let querys = null;
+
+        if (modelName === "model") {
+          const { model: newItem, ...props } = item;
+          querys = props;
+
+          if (_.isString(newItem)) {
+            return tryWithFilter(newItem, model, querys);
+          }
+
+          modelName = Object.keys(newItem)[0];
+          content = newItem[modelName];
+        }
 
         if (!Array.isArray(content)) {
           throw ControllerErrors.BAD_REQUEST;
         }
 
-        const result: any = tryWithFilter(modelName, model);
+        const result: any = tryWithFilter(modelName, model, querys);
         result.include = content.map(i =>
           parseIncludeRecursive(i, result.model),
         );
