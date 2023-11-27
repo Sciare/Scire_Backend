@@ -21,7 +21,7 @@ enum TimePeriod {
 /**
  * Calcula las fechas de inicio y fin basadas en el periodo de tiempo.
  */
-const getTimePeriodDates = (timePeriod: TimePeriod) => {
+const getTimePeriodDates = (timePeriod: string) => {
   const endDate = moment();
   let startDate;
 
@@ -56,7 +56,7 @@ const getTimePeriodDates = (timePeriod: TimePeriod) => {
   return { startDate: startDate.toDate(), endDate: endDate.toDate() };
 };
 
-const uploadedCourse = async (authorId: number, timePeriod: TimePeriod) => {
+const uploadedCourse = async (authorId: number, timePeriod: string) => {
   const { startDate, endDate } = getTimePeriodDates(timePeriod);
 
   try {
@@ -73,7 +73,7 @@ const uploadedCourse = async (authorId: number, timePeriod: TimePeriod) => {
   }
 };
 
-const subscribersCourses = async (authorId: number, timePeriod: TimePeriod) => {
+const subscribersCourses = async (authorId: number, timePeriod: string) => {
   const { startDate, endDate } = getTimePeriodDates(timePeriod);
 
   try {
@@ -90,10 +90,7 @@ const subscribersCourses = async (authorId: number, timePeriod: TimePeriod) => {
   }
 };
 
-const startedCoursesPercent = async (
-  authorId: number,
-  timePeriod: TimePeriod,
-) => {
+const startedCoursesPercent = async (authorId: number, timePeriod: string) => {
   const { startDate, endDate } = getTimePeriodDates(timePeriod);
 
   try {
@@ -131,7 +128,7 @@ const getTotalSubscribers = async (authorId: number): Promise<number> => {
 // Función modificada para calcular el porcentaje de nuevos inscritos
 const newSubscribersPercentageInPeriod = async (
   authorId: number,
-  timePeriod: TimePeriod,
+  timePeriod: string,
   totalSubscribers: number,
 ): Promise<string> => {
   try {
@@ -154,12 +151,17 @@ const newSubscribersPercentageInPeriod = async (
 
 export const getTeacherDashboard = async (req: Request, res: Response) => {
   try {
+    const { period } = req.query as { period: TimePeriod };
     const id = await decodeToken(req.headers.authorization);
     if (!id) {
       return Controller.badRequest(res, "Invalid token");
     }
 
-    const timePeriod = TimePeriod.OneMonth; // O cualquier otro periodo seleccionado
+    if (period && !Object.values(TimePeriod).includes(period)) {
+      return Controller.badRequest(res, "Time period param is not valid");
+    }
+
+    const timePeriod = period || "all";
 
     const uploadedCourses = await uploadedCourse(id, timePeriod);
     const totalStudents = await getTotalSubscribers(id);
