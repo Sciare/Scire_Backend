@@ -8,15 +8,14 @@ import {
   BeforeCreate,
   BeforeDestroy,
   BeforeUpdate,
-  BelongsTo,
   BelongsToMany,
   Column,
   DataType,
-  ForeignKey,
   HasMany,
   HasOne,
   Table,
 } from "sequelize-typescript";
+import { Certificate } from "../../Certificate/model/Certificate";
 import { Profile } from "../../Profile/model/Profile";
 import { Role } from "../../Role/model/Role";
 import { UserRole } from "../../UserRole/model/UserRole";
@@ -122,6 +121,10 @@ export class User extends BaseModel<User> {
     constraints: true,
   })
   roles: Role[];
+
+  // Relación uno a muchos con Certificate
+  @HasMany(() => Certificate)
+  certificates: Certificate[];
 
   @BeforeBulkCreate
   @BeforeBulkUpdate

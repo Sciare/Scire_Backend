@@ -47,7 +47,7 @@ export class Course extends BaseModel<Course> {
   })
   school_id: number;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => School)
   school: School;
 
   @Column({

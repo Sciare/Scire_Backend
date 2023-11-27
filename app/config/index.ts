@@ -21,7 +21,9 @@ export const config = {
       grantType: process.env.AZURE_GRANT_TYPE,
       Blob: {
         storageAccountName: process.env.STORAGE_ACCOUNT_NAME, // Azure Storage Account Name (required for blob storage authentication with SAS tokens).
-        connectionString: process.env.CONNECTION_STRING,
+        connectionString:
+          process.env.CONNECTION_STRING ||
+          "DefaultEndpointsProtocol=https;AccountName=scireblob;AccountKey=OejHEAYB0iWbA4rSdoHm32OzuHcwZ/TD1Kaype0eUGbhbQcYFH8C0+HFTQ5gYua6d/qRrxOuXing+AStm3lfoA==;EndpointSuffix=core.windows.net",
         containerName: process.env.CONTAINER_NAME,
         storageAccountKey: process.env.STORAGE_KEY,
       },
