@@ -9,6 +9,10 @@ interface UserParams {
   msId: string;
 }
 
+interface AzureUser extends Partial<User> {
+  uid_azure: string;
+}
+
 export const createUserFromAzure = async ({
   email,
   msId,
@@ -22,21 +26,21 @@ export const createUserFromAzure = async ({
     throw new InvalidMicrosoftAccount();
   }
 
-  //const azureId = azureUser.id;
+  const uid_azure = azureUser.id;
   const firstName = azureUser.firstName;
   const lastName = azureUser.lastName;
   const fullName = azureUser.fullName;
 
-  const newUser: Partial<User> = {
+  const newUser: AzureUser = {
     authType: AuthType.Microsoft,
     email,
     firstName,
     isActive: true,
     isEmailConfirmed: true,
     lastName,
-    //azureId,
+    uid_azure,
     name: fullName,
-    password: config.email.defaultPassword, // for Ms and Google, we don't use the password field
+    password: config.email.defaultPassword,
   };
   const user: User = await User.create(newUser);
   return user;

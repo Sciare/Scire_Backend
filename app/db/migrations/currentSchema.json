@@ -1,5 +1,63 @@
 {
   "tables": {
+    "attempt": {
+      "tableName": "attempt",
+      "schema": {
+        "id": {
+          "allowNull": false,
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "quizId": {
+          "allowNull": false,
+          "field": "quizId",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "userId": {
+          "allowNull": false,
+          "field": "userId",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "answers": {
+          "allowNull": false,
+          "field": "answers",
+          "seqType": "Sequelize.JSON"
+        },
+        "startTime": {
+          "allowNull": false,
+          "field": "startTime",
+          "seqType": "Sequelize.DATE"
+        },
+        "endTime": {
+          "allowNull": false,
+          "field": "endTime",
+          "seqType": "Sequelize.DATE"
+        },
+        "score": {
+          "allowNull": false,
+          "field": "score",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "passed": {
+          "allowNull": false,
+          "field": "passed",
+          "seqType": "Sequelize.BOOLEAN"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
     "certificate": {
       "tableName": "certificate",
       "schema": {
@@ -511,6 +569,87 @@
       },
       "indexes": []
     },
+    "quiz": {
+      "tableName": "quiz",
+      "schema": {
+        "id": {
+          "allowNull": false,
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "courseId": {
+          "allowNull": false,
+          "field": "courseId",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "duration": {
+          "allowNull": false,
+          "field": "duration",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "passingScore": {
+          "allowNull": false,
+          "field": "passingScore",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
+    "quizQuestion": {
+      "tableName": "quizQuestion",
+      "schema": {
+        "id": {
+          "allowNull": false,
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "quizId": {
+          "allowNull": false,
+          "field": "quizId",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "question": {
+          "allowNull": false,
+          "field": "question",
+          "seqType": "Sequelize.TEXT"
+        },
+        "answers": {
+          "allowNull": false,
+          "field": "answers",
+          "seqType": "Sequelize.JSON"
+        },
+        "correct_answers": {
+          "allowNull": false,
+          "field": "correct_answers",
+          "seqType": "Sequelize.TEXT"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
     "region": {
       "tableName": "region",
       "schema": {
@@ -812,5 +951,5 @@
       "indexes": []
     }
   },
-  "revision": "20231124110947"
+  "revision": "20231130095829"
 }
