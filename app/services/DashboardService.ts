@@ -1,3 +1,4 @@
+import { Certificate } from "@/db/models/Certificate/model/Certificate";
 import { Course } from "@/db/models/Course/model/Course";
 import { Enrollment } from "@/db/models/Enrollment/model/Enrollment";
 import { Controller } from "@/libraries/Controller";
@@ -101,10 +102,15 @@ const startedCoursesPercent = async (authorId: number, timePeriod: string) => {
         enrollment_date: { [Op.gte]: startDate, [Op.lte]: endDate },
       },
     });
+
     const percent =
       (startedPercent.count /
         (await subscribersCourses(authorId, timePeriod))) *
       100;
+
+    if (isNaN(percent)) {
+      return "0%";
+    }
     return `${percent.toFixed(2)}%`;
   } catch (error) {
     console.error("Error in startedCoursesPercent: ", error);
@@ -141,6 +147,10 @@ const newSubscribersPercentageInPeriod = async (
     });
 
     const percentage = (newSubscribersCount.count / totalSubscribers) * 100;
+
+    if (isNaN(percentage)) {
+      return "0%";
+    }
 
     return `${percentage.toFixed(2)}%`; // Devuelve el porcentaje con dos decimales
   } catch (error) {
@@ -180,6 +190,71 @@ export const getTeacherDashboard = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error in getTeacherDashboard: ", error);
+    return Controller.serverError(res);
+  }
+};
+
+/*----------------------------------------------
+
+S T U D E N T   D A S H B O A R D  L O G I C
+
+_______________________________________________ */
+
+const myCourses = async (userId: number, is_completed?: boolean) => {
+  try {
+    const course = await Enrollment.findAndCountAll({
+      where: {
+        userId,
+        is_completed: is_completed,
+      },
+    });
+
+    return course.count;
+  } catch (error) {
+    console.error("Error in studen total course: ", error);
+    throw new Error("Database query failed");
+  }
+};
+
+const myCertifications = async (userId: number) => {
+  try {
+    const certifications = await Certificate.findAndCountAll({
+      where: {
+        userId,
+      },
+    });
+    return certifications.count;
+  } catch (error) {
+    console.error("Error in student total course: ", error);
+    throw new Error("Database query failed");
+  }
+};
+
+export const getStudentDashboard = async (req: Request, res: Response) => {
+  try {
+    const id = await decodeToken(req.headers.authorization);
+    if (!id) {
+      return Controller.badRequest(res, "Invalid token");
+    }
+
+    const myCurrentsCourse = await myCourses(id, false);
+    const myCompletedCourse = (await myCourses(id, true)) + myCurrentsCourse;
+
+    let finishedCoursePercent = "0%";
+    if (myCompletedCourse !== 0) {
+      const percent = 100 - (myCurrentsCourse / myCompletedCourse) * 100;
+      finishedCoursePercent = `${percent.toFixed(2)}%`;
+    }
+
+    const certifications = await myCertifications(id);
+
+    return Controller.ok(res, {
+      myCurrentsCourse,
+      finishedCoursePercent,
+      certifications,
+    });
+  } catch (error) {
+    console.error("Error in getStudentDashboard: ", error);
     return Controller.serverError(res);
   }
 };

@@ -309,6 +309,13 @@
           "field": "is_started",
           "seqType": "Sequelize.BOOLEAN"
         },
+        "is_completed": {
+          "defaultValue": {
+            "value": false
+          },
+          "field": "is_completed",
+          "seqType": "Sequelize.BOOLEAN"
+        },
         "is_active": {
           "defaultValue": {
             "value": true
@@ -951,5 +958,5 @@
       "indexes": []
     }
   },
-  "revision": "20231130095829"
+  "revision": "20231227143737"
 }

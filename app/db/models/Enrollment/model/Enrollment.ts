@@ -1,13 +1,13 @@
+import { Course } from "@/db/models/Course/model/Course";
+import { User } from "@/db/models/User/model/User";
+import { BaseModel } from "@/libraries/BaseModel";
 import {
-  Table,
+  BelongsTo,
   Column,
   DataType,
   ForeignKey,
-  BelongsTo,
+  Table,
 } from "sequelize-typescript";
-import { BaseModel } from "@/libraries/BaseModel";
-import { User } from "@/db/models/User/model/User";
-import { Course } from "@/db/models/Course/model/Course";
 
 @Table({
   tableName: "enrollment",
@@ -43,6 +43,12 @@ export class Enrollment extends BaseModel<Enrollment> {
     defaultValue: false,
   })
   is_started: boolean;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+  })
+  is_completed: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
