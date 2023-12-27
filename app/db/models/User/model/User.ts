@@ -16,6 +16,7 @@ import {
   Table,
 } from "sequelize-typescript";
 import { Certificate } from "../../Certificate/model/Certificate";
+import { Enrollment } from "../../Enrollment/model/Enrollment";
 import { Profile } from "../../Profile/model/Profile";
 import { Role } from "../../Role/model/Role";
 import { UserRole } from "../../UserRole/model/UserRole";
@@ -125,6 +126,10 @@ export class User extends BaseModel<User> {
   // Relación uno a muchos con Certificate
   @HasMany(() => Certificate)
   certificates: Certificate[];
+
+  // Relación uno a muchos con Certificate
+  @HasMany(() => Enrollment)
+  enrollment: Enrollment[];
 
   @BeforeBulkCreate
   @BeforeBulkUpdate

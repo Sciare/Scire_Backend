@@ -1,6 +1,7 @@
 import { User } from "@/db/models/User/model/User";
 import { BaseModel } from "@/libraries/BaseModel";
 import {
+  AfterFind,
   BelongsTo,
   Column,
   DataType,
@@ -70,6 +71,27 @@ export class Course extends BaseModel<Course> {
   })
   cover: number;
 
-  @BelongsTo(() => File, { as: "Cover" })
+  @BelongsTo(() => File)
   file: File;
+
+  async populateUrl() {
+    if (this.cover && this.file) {
+      await this.file.populateUrl();
+    }
+  }
+
+  @AfterFind
+  static populateUrl(course: Course | Course[]) {
+    if (Array.isArray(course)) {
+      course.forEach(course => {
+        if (course) {
+          course.populateUrl();
+        }
+      });
+    } else {
+      if (course) {
+        course.populateUrl();
+      }
+    }
+  }
 }

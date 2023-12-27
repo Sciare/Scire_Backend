@@ -6,15 +6,12 @@ import {
   parseInclude,
   parseWhere,
 } from "@/libraries/ModelController";
-import { validateBody } from "@/libraries/Validator";
-import { AuthMiddleware, hasCustomPermission } from "@/policies/Authorization";
+import { hasCustomPermission } from "@/policies/Authorization";
+import { validateJWT } from "@/policies/General";
 import {
-  verifyAdminPermission,
-  isSelfUser,
-  validateJWT,
-} from "@/policies/General";
-import { getTeacherDashboard } from "@/services/DashboardService";
-import { UserSchema } from "@/validators/User";
+  getStudentDashboard,
+  getTeacherDashboard,
+} from "@/services/DashboardService";
 import { Request, Response, Router } from "express";
 
 export class UserController extends ModelController<User> {
@@ -199,13 +196,21 @@ export class UserController extends ModelController<User> {
      *         $ref: '#/components/responses/InternalServerError'
      */
     this.router.get(
-      "/dashboard",
+      "/teacher/dashboard",
       //validateJWT("access"),
       //AuthMiddleware(),
       //isSelfUser(),
       (req, res) => getTeacherDashboard(req, res),
     );
- 
+
+    this.router.get(
+      "/student/dashboard",
+      //validateJWT("access"),
+      //AuthMiddleware(),
+      //isSelfUser(),
+      (req, res) => getStudentDashboard(req, res),
+    );
+
     this.router.get(
       "/:id",
       //validateJWT("access"),
