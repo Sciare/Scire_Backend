@@ -309,14 +309,6 @@
           "field": "is_started",
           "seqType": "Sequelize.BOOLEAN"
         },
-        "taken_lesson": {
-          "allowNull": true,
-          "defaultValue": {
-            "value": null
-          },
-          "field": "taken_lesson",
-          "seqType": "Sequelize.ARRAY(Sequelize.STRING)"
-        },
         "is_completed": {
           "defaultValue": {
             "value": false
@@ -1025,5 +1017,5 @@
       "indexes": []
     }
   },
-  "revision": "20240113151932"
+  "revision": "20240113152536"
 }

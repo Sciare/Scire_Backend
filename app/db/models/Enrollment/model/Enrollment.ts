@@ -45,19 +45,6 @@ export class Enrollment extends BaseModel<Enrollment> {
   is_started: boolean;
 
   @Column({
-    type: DataType.ARRAY(DataType.STRING),
-    allowNull: true,
-    defaultValue: null,
-  })
-  taken_lesson: string[];
-
-  @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
-  })
-  is_completed: boolean;
-
-  @Column({
     type: DataType.BOOLEAN,
     defaultValue: false,
   })
