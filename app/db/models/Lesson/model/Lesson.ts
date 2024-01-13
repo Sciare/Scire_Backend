@@ -1,5 +1,6 @@
 import { BaseModel } from "@/libraries/BaseModel";
 import {
+  AfterFind,
   BelongsTo,
   Column,
   DataType,
@@ -18,6 +19,12 @@ export class Lesson extends BaseModel<Lesson> {
     allowNull: false,
   })
   name: string;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  lesson_number: number;
 
   @Column({
     type: DataType.STRING,
@@ -48,6 +55,27 @@ export class Lesson extends BaseModel<Lesson> {
   })
   video: number;
 
-  @BelongsTo(() => File, { as: "Video" })
+  @BelongsTo(() => File)
   file: File;
+
+  async populateUrl() {
+    if (this.video && this.file) {
+      await this.file.populateUrl();
+    }
+  }
+
+  @AfterFind
+  static populateUrl(course: Course | Course[]) {
+    if (Array.isArray(course)) {
+      course.forEach(course => {
+        if (course) {
+          course.populateUrl();
+        }
+      });
+    } else {
+      if (course) {
+        course.populateUrl();
+      }
+    }
+  }
 }

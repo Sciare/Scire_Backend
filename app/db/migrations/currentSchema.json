@@ -417,6 +417,60 @@
       },
       "indexes": []
     },
+    "learningTrack": {
+      "tableName": "learningTrack",
+      "schema": {
+        "id": {
+          "allowNull": false,
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "enrollmentId": {
+          "allowNull": false,
+          "field": "enrollmentId",
+          "name": "enrollmentId",
+          "references": {
+            "model": "enrollment",
+            "key": "id"
+          },
+          "onDelete": "NO ACTION",
+          "onUpdate": "CASCADE",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "lessonId": {
+          "allowNull": false,
+          "field": "lessonId",
+          "name": "lessonId",
+          "references": {
+            "model": "lesson",
+            "key": "id"
+          },
+          "onDelete": "NO ACTION",
+          "onUpdate": "CASCADE",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "isCompleted": {
+          "defaultValue": {
+            "value": false
+          },
+          "field": "isCompleted",
+          "seqType": "Sequelize.BOOLEAN"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
     "lesson": {
       "tableName": "lesson",
       "schema": {
@@ -431,6 +485,11 @@
           "allowNull": false,
           "field": "name",
           "seqType": "Sequelize.STRING"
+        },
+        "lesson_number": {
+          "allowNull": true,
+          "field": "lesson_number",
+          "seqType": "Sequelize.INTEGER"
         },
         "description": {
           "allowNull": true,
@@ -958,5 +1017,5 @@
       "indexes": []
     }
   },
-  "revision": "20231227143737"
+  "revision": "20240113152536"
 }
