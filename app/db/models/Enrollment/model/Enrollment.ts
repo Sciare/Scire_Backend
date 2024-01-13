@@ -59,6 +59,12 @@ export class Enrollment extends BaseModel<Enrollment> {
 
   @Column({
     type: DataType.BOOLEAN,
+    defaultValue: false,
+  })
+  is_completed: boolean;
+
+  @Column({
+    type: DataType.BOOLEAN,
     defaultValue: true,
   })
   is_active: boolean;
