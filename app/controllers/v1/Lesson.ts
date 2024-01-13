@@ -2,6 +2,7 @@ import { Lesson } from "@/db/models/Lesson/model/Lesson";
 import { ModelController } from "@/libraries/ModelController";
 import { validateBody } from "@/libraries/Validator";
 import { stripNestedObjects } from "@/policies/General";
+import { lastLessonTaken } from "@/services/LearningTrackerService";
 import { LessonSchema, UpdateLessonSchema } from "@/validators/Lesson";
 import { Router } from "express";
 
@@ -109,6 +110,12 @@ export class LessonController extends ModelController<Lesson> {
       "/",
       //validateJWT("access"),
       (req, res) => this.handleFindAll(req, res),
+    );
+
+    this.router.get(
+      "/learningTracker",
+      //validateJWT("access"),
+      (req, res) => lastLessonTaken(req, res),
     );
 
     /**
