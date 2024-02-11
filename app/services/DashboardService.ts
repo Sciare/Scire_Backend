@@ -1,6 +1,7 @@
 import { Certificate } from "@/db/models/Certificate/model/Certificate";
 import { Course } from "@/db/models/Course/model/Course";
 import { Enrollment } from "@/db/models/Enrollment/model/Enrollment";
+import { User } from "@/db/models/User/model/User";
 import { Controller } from "@/libraries/Controller";
 import { decodeToken } from "@/utils/decodeToken";
 import { Request, Response } from "express";
@@ -119,12 +120,12 @@ const startedCoursesPercent = async (authorId: number, timePeriod: string) => {
 };
 
 // Función para obtener el total de estudiantes inscritos en los cursos de un autor
-const getTotalSubscribers = async (authorId: number): Promise<number> => {
+const getTotalSubscribers = async (authorId: number): Promise<any> => {
   try {
     const total = await Enrollment.findAndCountAll({
       include: [{ model: Course, where: { author: authorId } }],
     });
-    return total.count;
+    return total;
   } catch (error) {
     console.error("Error in getTotalSubscribers: ", error);
     throw new Error("Database query failed");
@@ -175,16 +176,17 @@ export const getTeacherDashboard = async (req: Request, res: Response) => {
 
     const uploadedCourses = await uploadedCourse(id, timePeriod);
     const totalStudents = await getTotalSubscribers(id);
+    const totalStudentFinal = totalStudents.count;
     const startedPercents = await startedCoursesPercent(id, timePeriod);
     const newSubscribersPercentage = await newSubscribersPercentageInPeriod(
       id,
       timePeriod,
-      totalStudents,
+      totalStudentFinal,
     );
 
     return Controller.ok(res, {
       uploadedCourses,
-      totalStudents,
+      totalStudentFinal,
       startedPercents,
       newSubscribersPercentage,
     });
@@ -252,6 +254,53 @@ export const getStudentDashboard = async (req: Request, res: Response) => {
       myCurrentsCourse,
       finishedCoursePercent,
       certifications,
+    });
+  } catch (error) {
+    console.error("Error in getStudentDashboard: ", error);
+    return Controller.serverError(res);
+  }
+};
+
+// Función para obtener el total de estudiantes inscritos en los cursos de un autor
+const getTotalStudents = async (authorId: number): Promise<any> => {
+  try {
+    const data = await Enrollment.findAll({
+      include: [
+        {
+          model: Course,
+          where: { author: authorId },
+        },
+        { model: User },
+      ],
+    });
+
+    return data;
+  } catch (error) {
+    console.error("Error in getTotalSubscribers: ", error);
+    throw new Error("Database query failed");
+  }
+};
+export const getAdminStudents = async (req: Request, res: Response) => {
+  try {
+    const id = await decodeToken(req.headers.authorization);
+    if (!id) {
+      return Controller.badRequest(res, "Invalid token");
+    }
+
+    const myStudents = await getTotalStudents(id);
+
+    const setStudents = myStudents.map(student => {
+      const data = {
+        name: student.user.name,
+        email: student.user.email,
+        enrollmentDate: student.enrollment_date,
+        course: student.course.name,
+      };
+      return data;
+    });
+
+    return Controller.ok(res, {
+      setStudents,
     });
   } catch (error) {
     console.error("Error in getStudentDashboard: ", error);

@@ -9,6 +9,7 @@ import {
 import { hasCustomPermission } from "@/policies/Authorization";
 import { validateJWT } from "@/policies/General";
 import {
+  getAdminStudents,
   getStudentDashboard,
   getTeacherDashboard,
 } from "@/services/DashboardService";
@@ -209,6 +210,14 @@ export class UserController extends ModelController<User> {
       //AuthMiddleware(),
       //isSelfUser(),
       (req, res) => getStudentDashboard(req, res),
+    );
+
+    this.router.get(
+      "/my-students",
+      //validateJWT("access"),
+      //AuthMiddleware(),
+      //isSelfUser(),
+      (req, res) => getAdminStudents(req, res),
     );
 
     this.router.get(
