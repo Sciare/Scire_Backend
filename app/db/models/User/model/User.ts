@@ -16,6 +16,7 @@ import {
   Table,
 } from "sequelize-typescript";
 import { Certificate } from "../../Certificate/model/Certificate";
+import { Course } from "../../Course/model/Course";
 import { Enrollment } from "../../Enrollment/model/Enrollment";
 import { Profile } from "../../Profile/model/Profile";
 import { Role } from "../../Role/model/Role";
@@ -113,6 +114,12 @@ export class User extends BaseModel<User> {
     onDelete: "CASCADE",
   })
   userRoles: UserRole[];
+
+  @HasMany(() => Course, {
+    hooks: true,
+    onDelete: "CASCADE",
+  })
+  Course: Course[];
 
   @BelongsToMany(() => Role, {
     through: {
