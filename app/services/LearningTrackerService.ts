@@ -82,7 +82,7 @@ export const isCourseCompleted = async (req: Request, res: Response) => {
     const enrollmentId = enrollment.getDataValue("id");
 
     const allLessonTaken = await LearningTrack.findAndCountAll({
-      where: { enrollmentId },
+      where: { enrollmentId, isCompleted: true },
     });
 
     const allCourseLesson = await Lesson.findAndCountAll({
