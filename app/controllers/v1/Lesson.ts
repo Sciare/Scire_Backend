@@ -1,8 +1,11 @@
 import { Lesson } from "@/db/models/Lesson/model/Lesson";
 import { ModelController } from "@/libraries/ModelController";
 import { validateBody } from "@/libraries/Validator";
-import { stripNestedObjects } from "@/policies/General";
-import { lastLessonTaken } from "@/services/LearningTrackerService";
+import { validateJWT } from "@/policies/General";
+import {
+  isCourseCompleted,
+  lastLessonTaken,
+} from "@/services/LearningTrackerService";
 import { LessonSchema, UpdateLessonSchema } from "@/validators/Lesson";
 import { Router } from "express";
 
@@ -106,16 +109,16 @@ export class LessonController extends ModelController<Lesson> {
      *       '500':
      *         $ref: '#/components/responses/InternalServerError'
      */
-    this.router.get(
-      "/",
-      //validateJWT("access"),
-      (req, res) => this.handleFindAll(req, res),
+    this.router.get("/", validateJWT("access"), (req, res) =>
+      this.handleFindAll(req, res),
     );
 
-    this.router.get(
-      "/learningTracker",
-      //validateJWT("access"),
-      (req, res) => lastLessonTaken(req, res),
+    this.router.get("/learningTracker", validateJWT("access"), (req, res) =>
+      lastLessonTaken(req, res),
+    );
+
+    this.router.get("/check-is-completed", validateJWT("access"), (req, res) =>
+      isCourseCompleted(req, res),
     );
 
     /**
@@ -153,10 +156,8 @@ export class LessonController extends ModelController<Lesson> {
      *       '500':
      *         $ref: '#/components/responses/InternalServerError'
      */
-    this.router.get(
-      "/:id",
-      //validateJWT("access"),
-      (req, res) => this.handleFindOne(req, res),
+    this.router.get("/:id", validateJWT("access"), (req, res) =>
+      this.handleFindOne(req, res),
     );
 
     /**
@@ -193,8 +194,7 @@ export class LessonController extends ModelController<Lesson> {
      */
     this.router.post(
       "/",
-      //validateJWT("access"),
-      stripNestedObjects(),
+      validateJWT("access"),
       validateBody(LessonSchema),
       (req, res) => this.handleCreate(req, res),
     );
@@ -235,9 +235,8 @@ export class LessonController extends ModelController<Lesson> {
      */
     this.router.patch(
       "/:id",
-      //validateJWT("access"),
+      validateJWT("access"),
       validateBody(UpdateLessonSchema),
-      stripNestedObjects(),
       (req, res) => this.handleUpdate(req, res),
     );
 
@@ -266,10 +265,8 @@ export class LessonController extends ModelController<Lesson> {
      *         $ref: '#/components/responses/InternalServerError'
      *
      */
-    this.router.delete(
-      "/:id",
-      //validateJWT("access"),
-      (req, res) => this.handleDelete(req, res),
+    this.router.delete("/:id", validateJWT("access"), (req, res) =>
+      this.handleDelete(req, res),
     );
 
     return this.router;

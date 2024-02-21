@@ -6,9 +6,11 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasOne,
   Table,
 } from "sequelize-typescript";
 import { File } from "../../File/model/File";
+import { Quiz } from "../../Quiz/model/Quiz";
 import { School } from "../../School/model/School";
 
 @Table({
@@ -73,6 +75,9 @@ export class Course extends BaseModel<Course> {
 
   @BelongsTo(() => File)
   file: File;
+
+  @HasOne(() => Quiz)
+  quiz: Quiz;
 
   async populateUrl() {
     if (this.cover && this.file) {

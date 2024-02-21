@@ -65,3 +65,40 @@ export const lastLessonTaken = async (req: Request, res: Response) => {
     );
   }
 };
+
+export const isCourseCompleted = async (req: Request, res: Response) => {
+  try {
+    const { courseId } = req.query;
+    const userId = await decodeToken(req.headers.authorization);
+
+    const enrollment = await Enrollment.findOne({
+      where: { userId, courseId },
+    });
+
+    if (isNil(enrollment)) {
+      return Controller.badRequest(res, "User is not enrolled in this course.");
+    }
+
+    const enrollmentId = enrollment.getDataValue("id");
+
+    const allLessonTaken = await LearningTrack.findAndCountAll({
+      where: { enrollmentId },
+    });
+
+    const allCourseLesson = await Lesson.findAndCountAll({
+      where: { courseId: enrollment.courseId },
+    });
+
+    if (allLessonTaken.count === allCourseLesson.count) {
+      return Controller.ok(res, { status: "completed" });
+    }
+
+    return Controller.conflict(res, "Unfinished course");
+  } catch (error) {
+    console.error(error);
+    return Controller.badRequest(
+      res,
+      "Something went wrong, please check that the course in the req.query is correct",
+    );
+  }
+};
