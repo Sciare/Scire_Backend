@@ -5,6 +5,7 @@ import { Controller } from "@/libraries/Controller";
 import { decodeToken } from "@/utils/decodeToken";
 import { Request, Response } from "express";
 import { isNil } from "lodash";
+import sequelize from "sequelize";
 
 export const lastLessonTaken = async (req: Request, res: Response) => {
   try {
@@ -81,15 +82,27 @@ export const isCourseCompleted = async (req: Request, res: Response) => {
 
     const enrollmentId = enrollment.getDataValue("id");
 
-    const allLessonTaken = await LearningTrack.findAndCountAll({
+    const allLessonTaken = await LearningTrack.findAll({
       where: { enrollmentId, isCompleted: true },
+      attributes: [
+        [
+          sequelize.fn(
+            "COUNT",
+            sequelize.fn("DISTINCT", sequelize.col("lessonId")),
+          ),
+          "enrollmentLessonCount",
+        ],
+      ],
+      raw: true,
     });
+
+    const lessonUser = JSON.parse(JSON.stringify(allLessonTaken[0]));
 
     const allCourseLesson = await Lesson.findAndCountAll({
       where: { courseId: enrollment.courseId },
     });
 
-    if (allLessonTaken.count === allCourseLesson.count) {
+    if (lessonUser.enrollmentLessonCount == allCourseLesson.count) {
       return Controller.ok(res, { status: "completed" });
     }
 
