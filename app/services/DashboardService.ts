@@ -110,9 +110,9 @@ const startedCoursesPercent = async (authorId: number, timePeriod: string) => {
       100;
 
     if (isNaN(percent)) {
-      return "0%";
+      return 0;
     }
-    return `${percent.toFixed(2)}%`;
+    return Number(percent.toFixed(2));
   } catch (error) {
     console.error("Error in startedCoursesPercent: ", error);
     throw new Error("Database query failed");
@@ -137,7 +137,7 @@ const newSubscribersPercentageInPeriod = async (
   authorId: number,
   timePeriod: string,
   totalSubscribers: number,
-): Promise<string> => {
+): Promise<any> => {
   try {
     const { startDate, endDate } = getTimePeriodDates(timePeriod);
     const newSubscribersCount = await Enrollment.findAndCountAll({
@@ -150,10 +150,10 @@ const newSubscribersPercentageInPeriod = async (
     const percentage = (newSubscribersCount.count / totalSubscribers) * 100;
 
     if (isNaN(percentage)) {
-      return "0%";
+      return 0;
     }
 
-    return `${percentage.toFixed(2)}%`; // Devuelve el porcentaje con dos decimales
+    return Number(percentage.toFixed(2)); // Devuelve el porcentaje con dos decimales
   } catch (error) {
     console.error("Error in newSubscribersPercentageInPeriod: ", error);
     throw new Error("Database query failed");
@@ -242,10 +242,10 @@ export const getStudentDashboard = async (req: Request, res: Response) => {
     const myCurrentsCourse = await myCourses(id, false);
     const myCompletedCourse = (await myCourses(id, true)) + myCurrentsCourse;
 
-    let finishedCoursePercent = "0%";
+    let finishedCoursePercent = 0;
     if (myCompletedCourse !== 0) {
       const percent = 100 - (myCurrentsCourse / myCompletedCourse) * 100;
-      finishedCoursePercent = `${percent.toFixed(2)}%`;
+      finishedCoursePercent = Number(percent.toFixed(2));
     }
 
     const certifications = await myCertifications(id);
