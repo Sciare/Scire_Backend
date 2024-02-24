@@ -1,6 +1,7 @@
 import { Certificate } from "@/db/models/Certificate/model/Certificate";
 import { ModelController } from "@/libraries/ModelController";
-import { stripNestedObjects, validateJWT } from "@/policies/General";
+import { validateJWT } from "@/policies/General";
+import { exportPDF } from "@/services/CertificateService";
 import { Router } from "express";
 
 export class CertificateController extends ModelController<Certificate> {
@@ -11,27 +12,20 @@ export class CertificateController extends ModelController<Certificate> {
   }
 
   routes(): Router {
-    this.router.get(
-      "/",
-      //validateJWT("access"),
-      (req, res) => this.handleFindAll(req, res),
+    this.router.get("/", validateJWT("access"), (req, res) =>
+      this.handleFindAll(req, res),
     );
-    this.router.get(
-      "/:id",
-      //validateJWT("access"),
-      (req, res) => this.handleFindOne(req, res),
+    this.router.get("/:id", validateJWT("access"), (req, res) =>
+      this.handleFindOne(req, res),
     );
-    this.router.post(
-      "/",
-      //validateJWT("access"),
-      stripNestedObjects(),
-      (req, res) => this.handleCreate(req, res),
+    this.router.post("/", validateJWT("access"), (req, res) =>
+      this.handleCreate(req, res),
     );
-    this.router.put(
-      "/:id",
-      //validateJWT("access"),
-      stripNestedObjects(),
-      (req, res) => this.handleUpdate(req, res),
+    this.router.get("/:id/export", validateJWT("access"), (req, res) =>
+      exportPDF(req, res),
+    );
+    this.router.put("/:id", validateJWT("access"), (req, res) =>
+      this.handleUpdate(req, res),
     );
     this.router.delete("/:id", validateJWT("access"), (req, res) =>
       this.handleDelete(req, res),

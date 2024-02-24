@@ -90,7 +90,6 @@ export class MicrosoftAuthController extends Controller {
       "/login/callback",
       authenticateSSOCallback(IdentityProvider.Microsoft),
       (req, res) => {
-        console.log("gol");
         const loginOptions: LoginOptions = {
           loginPageRedirect: config.auth.routes.login_page,
           homePageRedirect: config.auth.routes.home_page,

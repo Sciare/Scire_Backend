@@ -37,6 +37,12 @@ function copyLocales() {
   return gulp.src("app/locales/**").pipe(gulp.dest("dist/locales/"));
 }
 
+function copyHtmlCertificate() {
+  return gulp
+    .src("HTMLCertificate/**/*")
+    .pipe(gulp.dest("dist/HTMLCertificate/"));
+}
+
 function copyYml() {
   return gulp.src("app/**/*.yml").pipe(gulp.dest("dist/"));
 }
@@ -60,7 +66,7 @@ function compile() {
 
 const build = gulp.series(
   clean,
-  gulp.parallel(compile, copyViews, copyLocales, copyYml),
+  gulp.parallel(compile, copyViews, copyLocales, copyYml, copyHtmlCertificate),
 );
 
 function doServe() {
@@ -70,7 +76,7 @@ const serve = gulp.series(compile, doServe);
 
 const cleanServe = gulp.series(
   clean,
-  gulp.parallel(copyViews, copyLocales, copyYml),
+  gulp.parallel(copyViews, copyLocales, copyYml, copyHtmlCertificate),
   serve,
 );
 

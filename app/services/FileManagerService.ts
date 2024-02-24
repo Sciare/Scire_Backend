@@ -119,7 +119,6 @@ export const putBlobFile = async (
   try {
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
     const response = await blockBlobClient.upload(data, data.length, options);
-    console.log("jey");
     return response;
   } catch (error) {
     console.error(error);
