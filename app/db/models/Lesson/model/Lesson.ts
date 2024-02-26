@@ -1,5 +1,6 @@
 import { BaseModel } from "@/libraries/BaseModel";
 import {
+  AfterCreate,
   AfterFind,
   BelongsTo,
   Column,
@@ -65,17 +66,37 @@ export class Lesson extends BaseModel<Lesson> {
   }
 
   @AfterFind
-  static populateUrl(course: Course | Course[]) {
-    if (Array.isArray(course)) {
-      course.forEach(course => {
-        if (course) {
-          course.populateUrl();
+  static populateUrl(lesson: Lesson | Lesson[]) {
+    if (Array.isArray(lesson)) {
+      lesson.forEach(lesson => {
+        if (lesson) {
+          lesson.populateUrl();
         }
       });
     } else {
-      if (course) {
-        course.populateUrl();
+      if (lesson) {
+        lesson.populateUrl();
       }
+    }
+  }
+
+  @AfterCreate
+  static async updateCourseDuration(instance: Lesson) {
+    try {
+      const course = await Course.findByPk(instance.courseId);
+      if (!course) {
+        console.error("Curso no encontrado");
+        return;
+      }
+
+      const lessonDuration = Number(instance.duration) || 0;
+      const courseDuration = Number(course.duration) || 0;
+
+      const newDuration = courseDuration + lessonDuration;
+      course.duration = newDuration;
+      await course.save();
+    } catch (error) {
+      console.error("Error al actualizar la duración del curso:", error);
     }
   }
 }

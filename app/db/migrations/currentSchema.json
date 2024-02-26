@@ -36,12 +36,15 @@
           "seqType": "Sequelize.DATE"
         },
         "score": {
-          "allowNull": false,
+          "allowNull": true,
           "field": "score",
           "seqType": "Sequelize.INTEGER"
         },
         "passed": {
-          "allowNull": false,
+          "allowNull": true,
+          "defaultValue": {
+            "value": false
+          },
           "field": "passed",
           "seqType": "Sequelize.BOOLEAN"
         },
@@ -648,6 +651,13 @@
         "courseId": {
           "allowNull": false,
           "field": "courseId",
+          "name": "courseId",
+          "references": {
+            "model": "course",
+            "key": "id"
+          },
+          "onDelete": "CASCADE",
+          "onUpdate": "CASCADE",
           "seqType": "Sequelize.INTEGER"
         },
         "duration": {
@@ -686,6 +696,13 @@
         "quizId": {
           "allowNull": false,
           "field": "quizId",
+          "name": "quizId",
+          "references": {
+            "model": "quiz",
+            "key": "id"
+          },
+          "onDelete": "CASCADE",
+          "onUpdate": "CASCADE",
           "seqType": "Sequelize.INTEGER"
         },
         "question": {
@@ -1017,5 +1034,5 @@
       "indexes": []
     }
   },
-  "revision": "20240113152536"
+  "revision": "20240226134838"
 }

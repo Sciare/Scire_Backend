@@ -1,6 +1,14 @@
 import { BaseModel } from "@/libraries/BaseModel";
-import { Column, DataType, ForeignKey, Table } from "sequelize-typescript";
+import {
+  AfterCreate,
+  BeforeCreate,
+  Column,
+  DataType,
+  ForeignKey,
+  Table,
+} from "sequelize-typescript";
 import { Quiz } from "../../Quiz/model/Quiz";
+import { QuizQuestion } from "../../QuizQuestion/model/QuizQuestion";
 import { User } from "../../User/model/User";
 
 @Table({
@@ -25,7 +33,7 @@ export class Attempt extends BaseModel<Attempt> {
     type: DataType.JSON,
     allowNull: false,
   })
-  answers: any; // JSON field to store student's answers
+  answers: any;
 
   @Column({
     type: DataType.DATE,
@@ -41,13 +49,53 @@ export class Attempt extends BaseModel<Attempt> {
 
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    allowNull: true,
   })
   score: number;
 
   @Column({
     type: DataType.BOOLEAN,
-    allowNull: false,
+    allowNull: true,
+    defaultValue: false,
   })
   passed: boolean;
+
+  @BeforeCreate
+  static async calculateUserScore(instance: Attempt) {
+    const { quizId, answers: userAnswers } = instance;
+
+    const quizQuestions = await QuizQuestion.findAll({ where: { quizId } });
+    let correctAnswersCount = 0;
+
+    const totalQuestions = quizQuestions.length;
+    quizQuestions.forEach(question => {
+      const userAnswer = userAnswers[question.question];
+      if (userAnswer && compareAnswers(userAnswer, question.correct_answers)) {
+        correctAnswersCount++;
+      }
+    });
+
+    const totalScore = (correctAnswersCount / totalQuestions) * 100;
+    instance.score = totalScore;
+  }
+
+  @AfterCreate
+  static async calculateScore(instance: Attempt) {
+    try {
+      const quizInfo = await Quiz.findByPk(instance.quizId);
+      if (!quizInfo) {
+        console.error("Quiz no encontrado");
+        return;
+      }
+      instance.passed = instance.score >= quizInfo.passingScore;
+      await instance.save();
+    } catch (error) {
+      console.error("Error al buscar la información del quiz:", error);
+    }
+  }
+}
+function compareAnswers(userAnswer: any, correct_answers: string) {
+  return (
+    userAnswer.trim().toLowerCase() === correct_answers.trim().toLowerCase()
+  );
 }

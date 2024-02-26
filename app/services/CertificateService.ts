@@ -159,9 +159,7 @@ async function generateCustomPDF(certificate) {
   const issueDate = new Date(issueDateStr);
   const formattedDate = issueDate.toLocaleDateString("es-ES", options);
   htmlContent = htmlContent.replace(/fecha de expedición/g, formattedDate);
-  const browser = await puppeteer.connect({
-    browserWSEndpoint: "wss://chrome.browserless.io/",
-  });
+  const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.setContent(htmlContent, {
     waitUntil: "networkidle0",
