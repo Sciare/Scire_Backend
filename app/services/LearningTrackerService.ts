@@ -106,7 +106,8 @@ export const isCourseCompleted = async (req: Request, res: Response) => {
 
     if (lessonUser.enrollmentLessonCount == allCourseLesson.count) {
       const hasQuiz = await Quiz.findOne({ where: { courseId } });
-      if (!hasQuiz) {
+      const alreadyHasCertificate = await Certificate.findOne({ where: { courseId, userId}})
+      if (!hasQuiz && !alreadyHasCertificate) {
         await Certificate.create({
           userId,
           courseId,

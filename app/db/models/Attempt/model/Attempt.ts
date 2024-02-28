@@ -91,13 +91,16 @@ export class Attempt extends BaseModel<Attempt> {
       }
       if (instance.score >= quizInfo.passingScore) {
         instance.passed = true;
-        await Certificate.create({
-          userId: instance.userId,
-          courseId: quizInfo.courseId,
-          dateIssued: new Date(),
-          validityPeriod: 365,
-        });
-        console.log("Certificate created successfully");
+        const alreadyHasCertificate = await Certificate.findOne({ where: { courseId:quizInfo.courseId, userId:instance.userId}})
+        if(!alreadyHasCertificate) {
+          await Certificate.create({
+            userId: instance.userId,
+            courseId: quizInfo.courseId,
+            dateIssued: new Date(),
+            validityPeriod: 365,
+          });
+          console.info("Certificate created successfully");
+        }
         await Enrollment.update(
           { is_completed: true },
           {
