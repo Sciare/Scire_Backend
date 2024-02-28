@@ -2,6 +2,7 @@ import { Certificate } from "@/db/models/Certificate/model/Certificate";
 import { Course } from "@/db/models/Course/model/Course";
 import { User } from "@/db/models/User/model/User";
 import { Controller } from "@/libraries/Controller";
+import { decodeTokenFromParams } from "@/utils/decodeToken";
 import { Request, Response } from "express";
 import * as puppeteer from "puppeteer";
 import { PDFOptions } from "puppeteer";
@@ -177,8 +178,10 @@ async function generateCustomPDF(certificate) {
 
 export const exportPDF = async (req: Request, res: Response) => {
   try {
+    const { token } = req.query
+    if (!token) return Controller.badRequest(res, "El token debe estar presente como un query params")
     const { id: certificateID } = req.params;
-    const id = req.session.jwt.id;
+    const id = await decodeTokenFromParams(token)
     let { type } = req.query; // values: "inline" or "attachment"
     type = type ?? "inline";
     const certificate = await Certificate.findOne({

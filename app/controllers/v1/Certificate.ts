@@ -21,7 +21,7 @@ export class CertificateController extends ModelController<Certificate> {
     this.router.post("/", validateJWT("access"), (req, res) =>
       this.handleCreate(req, res),
     );
-    this.router.get("/:id/export", validateJWT("access"), (req, res) =>
+    this.router.get("/:id/export", (req, res) =>
       exportPDF(req, res),
     );
     this.router.put("/:id", validateJWT("access"), (req, res) =>
