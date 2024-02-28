@@ -1,6 +1,8 @@
+import { Certificate } from "@/db/models/Certificate/model/Certificate";
 import { Enrollment } from "@/db/models/Enrollment/model/Enrollment";
 import { LearningTrack } from "@/db/models/LearningTrack/model/LearningTrack";
 import { Lesson } from "@/db/models/Lesson/model/Lesson";
+import { Quiz } from "@/db/models/Quiz/model/Quiz";
 import { Controller } from "@/libraries/Controller";
 import { decodeToken } from "@/utils/decodeToken";
 import { Request, Response } from "express";
@@ -103,9 +105,19 @@ export const isCourseCompleted = async (req: Request, res: Response) => {
     });
 
     if (lessonUser.enrollmentLessonCount == allCourseLesson.count) {
+      const hasQuiz = await Quiz.findOne({ where: { courseId } });
+      if (!hasQuiz) {
+        await Certificate.create({
+          userId,
+          courseId,
+          dateIssued: new Date(),
+          validityPeriod: 365,
+        });
+        await enrollment.update({ is_completed: true });
+        return Controller.created(res, "Certificate created");
+      }
       return Controller.ok(res, { status: "completed" });
     }
-
     return Controller.conflict(res, "Unfinished course");
   } catch (error) {
     console.error(error);

@@ -7,6 +7,8 @@ import {
   ForeignKey,
   Table,
 } from "sequelize-typescript";
+import { Certificate } from "../../Certificate/model/Certificate";
+import { Enrollment } from "../../Enrollment/model/Enrollment";
 import { Quiz } from "../../Quiz/model/Quiz";
 import { QuizQuestion } from "../../QuizQuestion/model/QuizQuestion";
 import { User } from "../../User/model/User";
@@ -84,13 +86,29 @@ export class Attempt extends BaseModel<Attempt> {
     try {
       const quizInfo = await Quiz.findByPk(instance.quizId);
       if (!quizInfo) {
-        console.error("Quiz no encontrado");
+        console.error("Quiz not found");
         return;
       }
-      instance.passed = instance.score >= quizInfo.passingScore;
+      if (instance.score >= quizInfo.passingScore) {
+        instance.passed = true;
+        await Certificate.create({
+          userId: instance.userId,
+          courseId: quizInfo.courseId,
+          dateIssued: new Date(),
+          validityPeriod: 365,
+        });
+        console.log("Certificate created successfully");
+        await Enrollment.update(
+          { is_completed: true },
+          {
+            where: { courseId: quizInfo.courseId, userId: instance.userId },
+          },
+        );
+        console.info("Enrollment updated to completed");
+      }
       await instance.save();
     } catch (error) {
-      console.error("Error al buscar la información del quiz:", error);
+      console.error("Error calculating quiz score:", error);
     }
   }
 }
