@@ -73,6 +73,9 @@ export const isCourseCompleted = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.query;
     const userId = await decodeToken(req.headers.authorization);
+    const hasLesson = await Lesson.findOne({where: { courseId: courseId}});
+    
+    if(!hasLesson) return Controller.conflict(res, "Unfinished course");
 
     const enrollment = await Enrollment.findOne({
       where: { userId, courseId },

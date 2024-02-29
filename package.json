@@ -113,7 +113,7 @@
     "winston": "2.4.3"
   },
   "engines": {
-    "node": ">=10.16.0"
+    "node": ">=18.1.0"
   },
   "lint-staged": {
     "app/**/*.{ts,js}": [
