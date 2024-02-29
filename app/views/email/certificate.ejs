@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirmación de Certificado</title>
+
+  <style type="text/css">
+    /* Estilos globales */
+    body, #bodyTable, #bodyCell {
+      height: 100% !important;
+      margin: 0;
+      padding: 0;
+      width: 100% !important;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    img {
+      border: 0;
+      outline: none;
+      text-decoration: none;
+    }
+
+    /* Estilos específicos para este documento */
+    .content {
+      width: 75%; /* Ajuste para que ocupe todo el ancho */
+      background-color: #ffffff;
+      padding: 40px;
+    }
+    .header {
+      background-color: #2E3192; /* Azul */
+      color: #FFC0CB; /* Rosado */
+      text-align: center;
+      padding: 30px;
+      width: 100%;
+    }
+    .header img {
+      width: 100px; /* Ajusta según el tamaño deseado para el logo */
+    }
+    .body {
+      padding: 60px;
+      text-align: center;
+      color: #333333;
+      font-size: 1.3em;
+    }
+    .footer {
+      background-color: #ED3A5B;
+      color: white;
+      text-align: center;
+      padding: 40px;
+      font-size: 0.8em;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0">
+  <center>
+    <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">
+      <tr>
+        <td align="center" valign="top" id="bodyCell">
+          <!-- BEGIN HEADER // -->
+          <div class="header">
+            <img src="https://argenisgonzalez-ksquare.github.io/html/bn-scire.png" alt="Logo de SCIRE" />
+          </div>
+          <!-- // END HEADER -->
+
+          <!-- BEGIN BODY // -->
+          <div class="content">
+            <div class="body">
+              <h1>¡Tu certificado ha sido creado con éxito!</h1>
+              <p>Estimado(a): <strong> <%= userName %>, </strong> </p>
+              <p>Estamos encantados de informarte que tu certificado del curso <strong> <%= courseName %> </strong> está listo y disponible.</p>
+              <p>Agradecemos tu esfuerzo y dedicación.</p>
+              <p>Puedes descargar tu certificado siempre que quieras desde nuestra web en el siguiente enlace</p>
+              <a href="<%= url %>">Click Aqui</a>
+              <br />
+              <p><strong>¡Felicidades!</strong></p>
+            </div>
+          </div>
+          <!-- // END BODY -->
+
+          <!-- BEGIN FOOTER // -->
+          <div class="footer">
+            © SCIRE 2023 · La Vega, Republica Dominicana
+          </div>
+          <!-- // END FOOTER -->
+        </td>
+      </tr>
+    </table>
+  </center>
+</body>
+</html>

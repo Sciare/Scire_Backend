@@ -1,7 +1,9 @@
 import { Course } from "@/db/models/Course/model/Course";
 import { User } from "@/db/models/User/model/User";
 import { BaseModel } from "@/libraries/BaseModel";
+import emailService from "@/services/EmailService";
 import {
+  AfterCreate,
   BelongsTo,
   Column,
   DataType,
@@ -28,7 +30,10 @@ export class Enrollment extends BaseModel<Enrollment> {
   })
   courseId: number;
 
-  @BelongsTo(() => Course)
+  @BelongsTo(() => Course, {
+    onDelete: 'CASCADE',
+    hooks: true
+  })
   course: Course;
 
   @Column({
@@ -55,4 +60,23 @@ export class Enrollment extends BaseModel<Enrollment> {
     defaultValue: true,
   })
   is_active: boolean;
+
+
+  @AfterCreate
+  static async sendEmail (instance:Enrollment) {
+    const course = await Course.findByPk(instance.courseId);
+    const userInfo = await User.findByPk(instance.userId)
+    const emailData = {
+      "email": `${userInfo.email}`,
+      "subject": `Scire - Inscripción a: ${course.name}`,
+      "page": "enrollment",
+      "locale": "es-ES",
+      "context": {
+        "userName": `${userInfo.name}`,
+        "courseName": `${course.name}`,
+        "enrollmentDate": `${instance.enrollment_date}`,
+      },
+    }    
+    emailService.sendEmail(emailData)
+  }
 }

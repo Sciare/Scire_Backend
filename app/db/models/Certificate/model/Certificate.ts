@@ -1,5 +1,8 @@
+import { config } from "@/config";
 import { BaseModel } from "@/libraries/BaseModel";
+import emailService from "@/services/EmailService";
 import {
+  AfterCreate,
   BelongsTo,
   Column,
   DataType,
@@ -49,4 +52,22 @@ export class Certificate extends BaseModel<Certificate> {
     allowNull: true,
   })
   validityPeriod: number;
+
+  @AfterCreate
+  static async sendEmail (instance:Certificate) {
+    const course = await Course.findByPk(instance.courseId);
+    const userInfo = await User.findByPk(instance.userId)
+    const emailData = {
+      "email": `${userInfo.email}`,
+      "subject": `Scire - Certificación: ${course.name}`,
+      "page": "certificate",
+      "locale": "es-ES",
+      "context": {
+        "userName": `${userInfo.name}`,
+        "courseName": `${course.name}`,
+        "url": config.scire.certificate_url,
+      },
+    }    
+    emailService.sendEmail(emailData)
+  }
 }

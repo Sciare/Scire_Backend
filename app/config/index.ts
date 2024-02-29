@@ -104,7 +104,7 @@ export const config = {
     host: process.env.EMAIL_SMTP_HOST || "smtp.gmail.com",
     port: process.env.EMAIL_SMPT_PORT
       ? parseInt(process.env.EMAIL_SMPT_PORT)
-      : 587,
+      : 465,
     secure: process.env.EMAIL_SMTP_SECURE
       ? process.env.EMAIL_SMTP_SECURE === "true"
       : true,
@@ -168,6 +168,10 @@ export const config = {
     password: process.env.SWAGGER_PASSWORD || "password",
     hasAuth: process.env.SWAGGER_HAS_AUTH || false,
   },
+
+  scire:{
+    certificate_url: process.env.SCIRE_CERTIFICATE_URL || "http://localhost:5173/certificate"
+  }
 };
 
 let portString = "";
