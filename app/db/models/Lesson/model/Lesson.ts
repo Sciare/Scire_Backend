@@ -43,7 +43,7 @@ export class Lesson extends BaseModel<Lesson> {
   course: Course;
 
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.FLOAT,
     allowNull: true,
     defaultValue: null,
   })

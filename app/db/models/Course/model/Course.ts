@@ -31,7 +31,7 @@ export class Course extends BaseModel<Course> {
   description: string;
 
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.FLOAT,
     allowNull: true,
   })
   duration: number;

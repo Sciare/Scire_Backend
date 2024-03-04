@@ -12,7 +12,7 @@ export const LessonSchema: Joi.ObjectSchema = Joi.object({
   courseId: Joi.number()
     .integer()
     .required(),
-  duration: Joi.number().integer(),
+  duration: Joi.number(),
   video_url_notDefinitive: Joi.string().uri(),
   video: Joi.number(),
 });
@@ -25,7 +25,7 @@ export const UpdateLessonSchema: Joi.ObjectSchema = Joi.object({
     .min(1)
     .max(400),
   courseId: Joi.number().integer(),
-  duration: Joi.number().integer(),
+  duration: Joi.number(),
   video_url_notDefinitive: Joi.string().uri(),
   video: Joi.number(),
 });

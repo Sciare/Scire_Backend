@@ -12,7 +12,7 @@ export const CourseSchema: Joi.ObjectSchema = Joi.object({
   school_id: Joi.number()
     .integer()
     .required(),
-  duration: Joi.number().integer(),
+  duration: Joi.number(),
   is_active: Joi.boolean().default(true),
   tags: Joi.array()
     .items(Joi.string())
@@ -30,7 +30,7 @@ export const UpdateCourseSchema: Joi.ObjectSchema = Joi.object({
     .min(1)
     .max(400),
   school_id: Joi.number().integer(),
-  duration: Joi.number().integer(),
+  duration: Joi.number(),
   is_active: Joi.boolean().default(true),
   tags: Joi.array().items(Joi.string()),
   cover_notDefinitive: Joi.string().uri(),
