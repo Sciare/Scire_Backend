@@ -15,6 +15,7 @@ export const LessonSchema: Joi.ObjectSchema = Joi.object({
   duration: Joi.number(),
   video_url_notDefinitive: Joi.string().uri(),
   video: Joi.number(),
+  lesson_number: Joi.number(),
 });
 
 export const UpdateLessonSchema: Joi.ObjectSchema = Joi.object({
@@ -28,4 +29,5 @@ export const UpdateLessonSchema: Joi.ObjectSchema = Joi.object({
   duration: Joi.number(),
   video_url_notDefinitive: Joi.string().uri(),
   video: Joi.number(),
+  lesson_number: Joi.number(),
 });

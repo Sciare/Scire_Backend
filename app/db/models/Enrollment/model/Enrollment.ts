@@ -30,10 +30,7 @@ export class Enrollment extends BaseModel<Enrollment> {
   })
   courseId: number;
 
-  @BelongsTo(() => Course, {
-    onDelete: 'CASCADE',
-    hooks: true
-  })
+  @BelongsTo(() => Course)
   course: Course;
 
   @Column({
