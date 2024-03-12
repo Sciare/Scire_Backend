@@ -4,6 +4,7 @@ import {
   Controller,
   handleServerError,
   parseBody,
+  parseId,
 } from "@/libraries/Controller";
 import { ModelController } from "@/libraries/ModelController";
 import { Request, Response, Router } from "express";
@@ -285,6 +286,12 @@ export class QuizController extends ModelController<Quiz> {
       //stripNestedObjects(),
       (req, res) => this.handleCreateBulk(req, res),
     );
+    this.router.patch(
+      "/:id/bulk",
+      //validateJWT("access"),
+      //stripNestedObjects(),
+      (req, res) => this.handleUpdateBulk(req, res),
+    );
 
     /**
      * @swagger
@@ -383,6 +390,37 @@ export class QuizController extends ModelController<Quiz> {
       const createBulkquestion = await QuizQuestion.bulkCreate(questions);
 
       return Controller.created(res, { result, createBulkquestion });
+    } catch (err) {
+      handleServerError(err, res);
+    }
+  }
+
+  async handleUpdateBulk(req: Request, res: Response) {
+    try {
+      const id = parseId(req);
+      const quiz = await Quiz.findByPk(id);
+      if (!quiz) return Controller.notFound(res, "Quiz not found");
+      const { courseId, duration, passingScore, questions } = parseBody(req);
+
+      await Quiz.update(
+        { courseId, duration, passingScore },
+        { where: { id } },
+      );
+
+      await QuizQuestion.destroy({
+        where: { quizId: id },
+      });
+
+      questions.forEach(x => {
+        x.quizId = id;
+      });
+
+      const createBulkquestion = await QuizQuestion.bulkCreate(questions);
+      return Controller.created(res, {
+        message: "Quiz updated successfully.",
+        quizId: id,
+        createBulkquestion,
+      });
     } catch (err) {
       handleServerError(err, res);
     }
